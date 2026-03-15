@@ -92,16 +92,16 @@ changelog {
 }
 
 val generateNeonParser = tasks.register<GenerateParserTask>("generateLatteParser") {
-    sourceFile = File("src/main/kotlin/org/nette/neon/parser/NeonParser.bnf")
+    sourceFile = File("src/main/kotlin/dev/noctud/neon/parser/NeonParser.bnf")
     targetRootOutputDir = File("src/main/gen")
-    pathToParser = "/org/nette/neon/parser/NeonParser.kt"
-    pathToPsiRoot = "/org/nette/neon/psi"
+    pathToParser = "/dev/noctud/neon/parser/NeonParser.kt"
+    pathToPsiRoot = "/dev/noctud/neon/psi"
     purgeOldFiles = false
 }
 
 val generateNeonContentLexer = tasks.register<GenerateLexerTask>("generateNeonContentLexer") {
-    sourceFile = File("src/main/kotlin/org/nette/neon/lexer/NeonLexer.flex")
-    targetOutputDir = File("src/main/gen/org/nette/neon/lexer")
+    sourceFile = File("src/main/kotlin/dev/noctud/neon/lexer/NeonLexer.flex")
+    targetOutputDir = File("src/main/gen/dev/noctud/neon/lexer")
     purgeOldFiles = false
 }
 

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.nette.neon</id>
     <name>Neon</name>
-    <vendor>Nette Community</vendor>
+    <vendor>Noctud.dev</vendor>
 
     <!-- http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges -->
     <idea-version/>
@@ -11,27 +11,27 @@
     <depends>com.jetbrains.php</depends>
 
     <extensions defaultExtensionNs="com.intellij">
-        <fileType name="Neon" implementationClass="org.nette.neon.file.NeonFileType" fieldName="INSTANCE"
+        <fileType name="Neon" implementationClass="dev.noctud.neon.file.NeonFileType" fieldName="INSTANCE"
                   language="neon" extensions="neon" />
 
-        <colorSettingsPage implementation="org.nette.neon.editor.NeonColorsPage" />
-        <lang.syntaxHighlighterFactory language="neon" implementationClass="org.nette.neon.editor.NeonSyntaxHighlighterFactory" />
-        <lang.commenter language="neon" implementationClass="org.nette.neon.NeonCommenter" />
-        <lang.psiStructureViewFactory language="neon" implementationClass="org.nette.neon.editor.NeonStructureViewFactory" />
+        <colorSettingsPage implementation="dev.noctud.neon.editor.NeonColorsPage" />
+        <lang.syntaxHighlighterFactory language="neon" implementationClass="dev.noctud.neon.editor.NeonSyntaxHighlighterFactory" />
+        <lang.commenter language="neon" implementationClass="dev.noctud.neon.NeonCommenter" />
+        <lang.psiStructureViewFactory language="neon" implementationClass="dev.noctud.neon.editor.NeonStructureViewFactory" />
 
         <!-- code settings (indent, tabs?) -->
-        <codeStyleSettingsProvider implementation="org.nette.neon.editor.NeonCodeStyleSettingsProvider" />
-        <langCodeStyleSettingsProvider implementation="org.nette.neon.editor.NeonLanguageCodeStyleSettingsProvider" />
+        <codeStyleSettingsProvider implementation="dev.noctud.neon.editor.NeonCodeStyleSettingsProvider" />
+        <langCodeStyleSettingsProvider implementation="dev.noctud.neon.editor.NeonLanguageCodeStyleSettingsProvider" />
 
-        <lang.parserDefinition language="neon" implementationClass="org.nette.neon.parser.NeonParserDefinition" />
-        <lang.fileViewProviderFactory language="neon" implementationClass="org.nette.neon.file.NeonFileViewProviderFactory" />
-        <lang.braceMatcher language="neon" implementationClass="org.nette.neon.NeonBraceMatcher" />
-        <lang.foldingBuilder language="neon" implementationClass="org.nette.neon.editor.NeonFoldingBuilder" />
-        <completion.contributor language="neon" implementationClass="org.nette.neon.completion.NeonCompletionContributor" />
-        <breadcrumbsInfoProvider implementation="org.nette.neon.editor.NeonBreadcrumbsInfoProvider" />
-        <enterHandlerDelegate implementation="org.nette.neon.editor.NeonEnterHandler"/>
+        <lang.parserDefinition language="neon" implementationClass="dev.noctud.neon.parser.NeonParserDefinition" />
+        <lang.fileViewProviderFactory language="neon" implementationClass="dev.noctud.neon.file.NeonFileViewProviderFactory" />
+        <lang.braceMatcher language="neon" implementationClass="dev.noctud.neon.NeonBraceMatcher" />
+        <lang.foldingBuilder language="neon" implementationClass="dev.noctud.neon.editor.NeonFoldingBuilder" />
+        <completion.contributor language="neon" implementationClass="dev.noctud.neon.completion.NeonCompletionContributor" />
+        <breadcrumbsInfoProvider implementation="dev.noctud.neon.editor.NeonBreadcrumbsInfoProvider" />
+        <enterHandlerDelegate implementation="dev.noctud.neon.editor.NeonEnterHandler"/>
 
-        <gotoDeclarationHandler implementation="org.nette.neon.reference.GoToClassHandler"/>
-        <annotator implementationClass="org.nette.neon.annotator.NeonAnnotator" language="neon"/>
+        <gotoDeclarationHandler implementation="dev.noctud.neon.reference.GoToClassHandler"/>
+        <annotator implementationClass="dev.noctud.neon.annotator.NeonAnnotator" language="neon"/>
     </extensions>
 </idea-plugin>
