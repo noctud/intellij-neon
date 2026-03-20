@@ -1,15 +1,15 @@
-[Neon] indent
-[Neon] literal
-[Neon] :
-[Neon] indent
-[Neon] -
+[Neon] T_INDENT
+[Neon] T_LITERAL
+[Neon] T_COLON
+[Neon] T_INDENT
+[Neon] T_ARRAY_BULLET
 WHITE_SPACE
-[Neon] literal
-[Neon] indent
-[Neon] literal
-[Neon] :
-[Neon] indent
-[Neon] -
+[Neon] T_LITERAL
+[Neon] T_INDENT
+[Neon] T_LITERAL
+[Neon] T_COLON
+[Neon] T_INDENT
+[Neon] T_ARRAY_BULLET
 WHITE_SPACE
-[Neon] literal
-[Neon] indent
+[Neon] T_LITERAL
+[Neon] T_INDENT

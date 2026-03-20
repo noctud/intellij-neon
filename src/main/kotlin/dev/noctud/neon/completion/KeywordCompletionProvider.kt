@@ -7,8 +7,7 @@ import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import dev.noctud.neon.completion.schema.SchemaProvider
-import dev.noctud.neon.lexer.NeonTokenTypes
-import dev.noctud.neon.parser.NeonElementTypes
+import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonFile
 import dev.noctud.neon.psi.elements.NeonKey
 import dev.noctud.neon.psi.elements.NeonKeyValPair
@@ -214,7 +213,7 @@ class KeywordCompletionProvider : CompletionProvider<CompletionParameters?>() {
         results: CompletionResultSet
     ) {
         val curr = params.position.originalElement
-        if (curr.node.elementType === NeonTokenTypes.NEON_COMMENT) {
+        if (curr.node.elementType === _NeonTypes.T_COMMENT) {
             return
         }
         var hasSomething = false
@@ -327,13 +326,15 @@ class KeywordCompletionProvider : CompletionProvider<CompletionParameters?>() {
             var element = el
             if (isIncomplete) {
                 return element.parent
-            } else if (element.parent.parent is NeonFile) {
-                return element.parent
-            } else {
-                // literal -> scalar -> [key ->] key-val pair -> any parent
-                element = element.parent.parent
-                return if (element is NeonKey) element.parent.parent else element.parent
             }
+            val parent = element.parent ?: return null
+            val grandparent = parent.parent ?: return parent
+            if (grandparent is NeonFile) {
+                return parent
+            }
+            // literal -> scalar -> [key ->] key-val pair -> any parent
+            element = grandparent
+            return if (element is NeonKey) element.parent?.parent else element.parent
         }
 
         /**
@@ -346,7 +347,7 @@ class KeywordCompletionProvider : CompletionProvider<CompletionParameters?>() {
             while (element != null) {
                 if (element is NeonKeyValPair) {
                     names.add(0, element.keyText)
-                } else if (element.node.elementType === NeonElementTypes.ITEM) {
+                } else if (element is NeonKeyValPair && element.key?.keyText == "-") {
                     names.add(0, "#")
                 }
 

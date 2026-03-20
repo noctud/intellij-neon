@@ -1,30 +1,29 @@
 NeonFile:ErrorClosingBracket2.neon
-  PsiComment([Neon] comment)('# errors')
-  PsiElement([Neon] indent)('\n')
-  Neon array
-    Neon key-val pair
-      Neon key
-        Neon scalar
-          PsiElement([Neon] literal)('a')
-      PsiElement([Neon] :)(':')
-      PsiElement([Neon] indent)('\n    ')
-      Neon array
-        Neon key-val pair
-          Neon key
-            Neon scalar
-              PsiElement([Neon] literal)('foo')
-          PsiElement([Neon] :)(':')
-          PsiWhiteSpace(' ')
-          Neon entity
-            Neon scalar
-              PsiElement([Neon] literal)('Bar')
-            Neon array
-              PsiElement([Neon] ()('(')
+  PsiComment([Neon] T_COMMENT)('# errors')
+  PsiElement([Neon] T_INDENT)('\n')
+  NeonArrayImpl([Neon] ARRAY)
+    NeonKeyValPairImpl([Neon] KEY_VAL_PAIR)
+      NeonKeyValPairImpl([Neon] NAMED_KEY_VAL_PAIR)
+        NeonKeyImpl([Neon] KEY)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_LITERAL)('a')
+          PsiElement([Neon] T_COLON)(':')
+        NeonArrayImpl([Neon] INNER_ARRAY)
+          PsiElement([Neon] T_INDENT)('\n    ')
+          NeonKeyValPairImpl([Neon] KEY_VAL_PAIR)
+            NeonKeyValPairImpl([Neon] NAMED_KEY_VAL_PAIR)
+              NeonKeyImpl([Neon] KEY)
+                NeonScalarImpl([Neon] SCALAR)
+                  PsiElement([Neon] T_LITERAL)('foo')
+                PsiElement([Neon] T_COLON)(':')
               PsiWhiteSpace(' ')
-              Neon scalar
-                PsiElement([Neon] literal)('Baz')
-              PsiErrorElement:unexpected token [Neon] ], expected [Neon] )
-                <empty list>
+              NeonValueImpl([Neon] VALUE)
+                NeonScalarImpl([Neon] SCALAR)
+                  PsiElement([Neon] T_LITERAL)('Bar')
+  PsiElement([Neon] T_LPAREN)('(')
   PsiWhiteSpace(' ')
-  PsiElement([Neon] ])(']')
-  PsiElement([Neon] indent)('\n')
+  PsiElement([Neon] T_LITERAL)('Baz')
+  PsiWhiteSpace(' ')
+  PsiErrorElement:':', <array value>, <scalar>, '=', '=>', '[Neon] T_ASSIGNMENT', '[Neon] T_COLON', '[Neon] T_DOUBLE_ARROW', '[Neon] T_INDENT', '[Neon] T_ITEM_DELIMITER', '[Neon] T_LPAREN' or '[Neon] T_RPAREN' expected, got ']'
+    PsiElement([Neon] T_RBRACE_SQUARE)(']')
+  PsiElement([Neon] T_INDENT)('\n')

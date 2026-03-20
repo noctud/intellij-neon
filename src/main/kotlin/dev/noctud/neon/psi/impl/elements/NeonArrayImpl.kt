@@ -9,10 +9,6 @@ import java.util.regex.Pattern
 import kotlin.math.max
 
 class NeonArrayImpl(astNode: ASTNode) : NeonPsiElementImpl(astNode), NeonArray {
-    override fun toString(): String {
-        return "Neon array"
-    }
-
     override val isList: Boolean
         get() {
             for (el in children) {

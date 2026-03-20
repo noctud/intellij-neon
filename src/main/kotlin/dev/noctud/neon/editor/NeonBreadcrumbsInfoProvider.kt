@@ -24,7 +24,7 @@ class NeonBreadcrumbsInfoProvider : BreadcrumbsProvider {
     override fun getElementInfo(e: PsiElement): String {
         when (e) {
             is NeonKeyValPair -> {
-                return e.keyText!!
+                return e.keyText ?: "-"
             }
 
             is NeonEntity -> {

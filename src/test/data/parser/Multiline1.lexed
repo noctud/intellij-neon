@@ -1,14 +1,14 @@
-[Neon] -
+[Neon] T_ARRAY_BULLET
 WHITE_SPACE
-[Neon] string
-[Neon] indent
-[Neon] indent
-[Neon] -
+[Neon] T_STRING
+[Neon] T_INDENT
+[Neon] T_INDENT
+[Neon] T_ARRAY_BULLET
 WHITE_SPACE
-[Neon] string
-[Neon] indent
-[Neon] indent
-[Neon] -
+[Neon] T_STRING
+[Neon] T_INDENT
+[Neon] T_INDENT
+[Neon] T_ARRAY_BULLET
 WHITE_SPACE
-[Neon] string
-[Neon] indent
+[Neon] T_STRING
+[Neon] T_INDENT

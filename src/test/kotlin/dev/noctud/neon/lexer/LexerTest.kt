@@ -1,6 +1,7 @@
 package dev.noctud.neon.lexer
 
 import com.intellij.lexer.MergingLexerAdapter
+import com.intellij.psi.TokenType
 import org.junit.Test
 import dev.noctud.neon.BaseLexerTestCase
 
@@ -8,16 +9,16 @@ class LexerTest : BaseLexerTestCase("src/test/data/parser/") {
     override fun createLexer(): MergingLexerAdapter {
         return NeonLexer()
     }
-    
+
     @Test
     @Throws(Exception::class)
     fun testSimple() {
         doTest(
             "name: 'Jan'", arrayOf(
-                Pair(NeonTokenTypes.NEON_LITERAL, "name"),
-                Pair(NeonTokenTypes.NEON_COLON, ":"),
-                Pair(NeonTokenTypes.NEON_WHITESPACE, " "),
-                Pair(NeonTokenTypes.NEON_STRING, "'Jan'"),
+                Pair(_NeonTypes.T_LITERAL, "name"),
+                Pair(_NeonTypes.T_COLON, ":"),
+                Pair(TokenType.WHITE_SPACE, " "),
+                Pair(_NeonTypes.T_STRING, "'Jan'"),
             )
         )
     }
@@ -27,15 +28,15 @@ class LexerTest : BaseLexerTestCase("src/test/data/parser/") {
     fun testTabAfterKey() {
         doTest(
             "name: \t'Jan'\nsurname:\t \t 'Dolecek'", arrayOf(
-                Pair(NeonTokenTypes.NEON_LITERAL, "name"),
-                Pair(NeonTokenTypes.NEON_COLON, ":"),
-                Pair(NeonTokenTypes.NEON_WHITESPACE, " \t"),
-                Pair(NeonTokenTypes.NEON_STRING, "'Jan'"),
-                Pair(NeonTokenTypes.NEON_INDENT, "\n"),
-                Pair(NeonTokenTypes.NEON_LITERAL, "surname"),
-                Pair(NeonTokenTypes.NEON_COLON, ":"),
-                Pair(NeonTokenTypes.NEON_WHITESPACE, "\t \t "),
-                Pair(NeonTokenTypes.NEON_STRING, "'Dolecek'"),
+                Pair(_NeonTypes.T_LITERAL, "name"),
+                Pair(_NeonTypes.T_COLON, ":"),
+                Pair(TokenType.WHITE_SPACE, " \t"),
+                Pair(_NeonTypes.T_STRING, "'Jan'"),
+                Pair(_NeonTypes.T_INDENT, "\n"),
+                Pair(_NeonTypes.T_LITERAL, "surname"),
+                Pair(_NeonTypes.T_COLON, ":"),
+                Pair(TokenType.WHITE_SPACE, "\t \t "),
+                Pair(_NeonTypes.T_STRING, "'Dolecek'"),
             )
         )
     }

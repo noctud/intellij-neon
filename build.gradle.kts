@@ -91,10 +91,10 @@ changelog {
     path = file("CHANGELOG.md").canonicalPath
 }
 
-val generateNeonParser = tasks.register<GenerateParserTask>("generateLatteParser") {
+val generateNeonParser = tasks.register<GenerateParserTask>("generateNeonParser") {
     sourceFile = File("src/main/kotlin/dev/noctud/neon/parser/NeonParser.bnf")
     targetRootOutputDir = File("src/main/gen")
-    pathToParser = "/dev/noctud/neon/parser/NeonParser.kt"
+    pathToParser = "/dev/noctud/neon/parser/NeonParser.java"
     pathToPsiRoot = "/dev/noctud/neon/psi"
     purgeOldFiles = false
 }

@@ -1,8 +1,9 @@
 package dev.noctud.neon.lexer;
 
 import com.intellij.lexer.FlexLexer;
+import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
-import static dev.noctud.neon.lexer.NeonTokenTypes.*;
+import static dev.noctud.neon.lexer._NeonTypes.*;
 
 /**
  * @author Jan Dolecek
@@ -28,7 +29,7 @@ import static dev.noctud.neon.lexer.NeonTokenTypes.*;
 STRING = \'[^\'\n]*\'|\"(\\.|[^\"\\\n])*\"
 COMMENT = \#.*
 INDENT = \n[\t ]*
-LITERAL_START = [^-:#\"\',=\[\]{}()\x00-\x20!`]|[:-][!#$%&*\x2D-\x5C\x5E-\x7C~\xA0-\uFFFF]
+LITERAL_START = [^-:#\"\',=\[\]{}()\x00-\x20`]|[:-][!#$%&*\x2D-\x5C\x5E-\x7C~\xA0-\uFFFF]
 WHITESPACE = [\t ]+
 
 %states DEFAULT, IN_LITERAL, VYINITIAL, IN_MULTILINE_DQ, IN_MULTILINE_SQ
@@ -38,7 +39,7 @@ WHITESPACE = [\t ]+
 <YYINITIAL> {
 
     {WHITESPACE} {
-        return NEON_INDENT;
+        return T_INDENT;
     }
     [^] {
         retryInState(DEFAULT);
@@ -48,48 +49,48 @@ WHITESPACE = [\t ]+
 <DEFAULT> {
     "\"\"\"" / \n([^]*\n)?[ \t]*"\"\"\"" {
         yybegin(IN_MULTILINE_DQ);
-        return NEON_STRING;
+        return T_STRING;
     }
     "'''" / \n([^]*\n)?[ \t]*"'''" {
         yybegin(IN_MULTILINE_SQ);
-        return NEON_STRING;
+        return T_STRING;
     }
     {STRING} {
-        return NEON_STRING;
+        return T_STRING;
     }
 
-    "," { return NEON_ITEM_DELIMITER; }
-    "=" { return NEON_ASSIGNMENT; }
+    "," { return T_ITEM_DELIMITER; }
+    "=" { return T_ASSIGNMENT; }
 
-    "(" { return NEON_LPAREN; }
-    ")" { return NEON_RPAREN; }
-    "{" { return NEON_LBRACE_CURLY; }
-    "}" { return NEON_RBRACE_CURLY; }
-    "[" { return NEON_LBRACE_SQUARE; }
-    "]" { return NEON_RBRACE_SQUARE; }
+    "(" { return T_LPAREN; }
+    ")" { return T_RPAREN; }
+    "{" { return T_LBRACE_CURLY; }
+    "}" { return T_RBRACE_CURLY; }
+    "[" { return T_LBRACE_SQUARE; }
+    "]" { return T_RBRACE_SQUARE; }
 
     {COMMENT} {
-        return NEON_COMMENT;
+        return T_COMMENT;
     }
 
     {INDENT} {
-        return NEON_INDENT;
+        return T_INDENT;
     }
 
     {LITERAL_START} {
         yybegin(IN_LITERAL);
-        return NEON_LITERAL;
+        return T_LITERAL;
     }
 
-    ":" { return NEON_COLON; }
-    "-" { return NEON_ARRAY_BULLET; }
+    ":" { return T_COLON; }
+    "-" { return T_ARRAY_BULLET; }
 
     {WHITESPACE} {
-        return NEON_WHITESPACE;
+        return TokenType.WHITE_SPACE;
     }
 
     . {
-        return NEON_UNKNOWN;
+        return T_UNKNOWN;
     }
 }
 

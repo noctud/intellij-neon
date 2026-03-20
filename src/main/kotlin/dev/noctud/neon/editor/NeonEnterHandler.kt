@@ -12,8 +12,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiUtilCore
 import dev.noctud.neon.NeonLanguage
-import dev.noctud.neon.lexer.NeonTokenTypes
-import dev.noctud.neon.parser.NeonElementTypes
+import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonArray
 import dev.noctud.neon.psi.elements.NeonFile
 import dev.noctud.neon.psi.elements.NeonKeyValPair
@@ -63,15 +62,14 @@ class NeonEnterHandler : EnterHandlerDelegate {
 
     private fun shouldProcess(el: PsiElement): Boolean {
         val prev = el.prevSibling
-        if (prev != null && prev.node.elementType === NeonTokenTypes.NEON_ITEM_DELIMITER) { //inline array
+        if (prev != null && prev.node.elementType === _NeonTypes.T_ITEM_DELIMITER) { //inline array
             return false
         }
-        if (prev != null && prev.node.elementType === NeonTokenTypes.NEON_INDENT) { //empty line
+        if (prev != null && prev.node.elementType === _NeonTypes.T_INDENT) { //empty line
             return false
         }
         val parent = el.parent ?: return false
-        return parent is NeonKeyValPair || parent.node
-            .elementType === NeonElementTypes.ITEM || isKeyAfterBullet(parent)
+        return parent is NeonKeyValPair || isKeyAfterBullet(parent)
     }
 
     private fun getIndentString(file: PsiFile, keyAfterBullet: Boolean): String {
@@ -92,8 +90,8 @@ class NeonEnterHandler : EnterHandlerDelegate {
         element = if (element is NeonKeyValPair) element.parent else element
 
         return element is NeonArray
-                && element.children.size == 1 && element.parent.node
-            .elementType === NeonElementTypes.ITEM && element.prevSibling.text == " "
-                && element.parent.firstChild.text == "-"
+                && element.children.size == 1 && element.parent is NeonKeyValPair
+                && element.prevSibling?.text == " "
+                && element.parent.firstChild?.text == "-"
     }
 }

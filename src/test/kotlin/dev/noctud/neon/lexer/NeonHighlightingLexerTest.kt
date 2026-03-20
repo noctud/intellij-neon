@@ -1,6 +1,7 @@
 package dev.noctud.neon.lexer
 
 import com.intellij.lexer.Lexer
+import com.intellij.psi.TokenType
 import com.intellij.testFramework.UsefulTestCase
 import junit.framework.TestCase
 import org.junit.Test
@@ -17,19 +18,19 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         TestCase.assertEquals("key", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_COLON, l.tokenType)
+        assertEquals(_NeonTypes.T_COLON, l.tokenType)
         TestCase.assertEquals(3, l.tokenStart)
         TestCase.assertEquals(4, l.tokenEnd)
         TestCase.assertEquals(":", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_WHITESPACE, l.tokenType)
+        assertEquals(TokenType.WHITE_SPACE, l.tokenType)
         TestCase.assertEquals(4, l.tokenStart)
         TestCase.assertEquals(5, l.tokenEnd)
         TestCase.assertEquals(" ", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_LITERAL, l.tokenType)
+        assertEquals(_NeonTypes.T_LITERAL, l.tokenType)
         TestCase.assertEquals(5, l.tokenStart)
         TestCase.assertEquals(8, l.tokenEnd)
         TestCase.assertEquals("val", l.tokenText)
@@ -43,7 +44,7 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         val l: Lexer = NeonHighlightingLexer(NeonLexer())
         l.start("[true,off,TruE,\"true\"]")
 
-        assertEquals(NeonTokenTypes.NEON_LBRACE_SQUARE, l.tokenType) // this is important
+        assertEquals(_NeonTypes.T_LBRACE_SQUARE, l.tokenType)
         TestCase.assertEquals(0, l.tokenStart)
         TestCase.assertEquals(1, l.tokenEnd)
         TestCase.assertEquals("[", l.tokenText)
@@ -55,7 +56,7 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         TestCase.assertEquals("true", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_ITEM_DELIMITER, l.tokenType)
+        assertEquals(_NeonTypes.T_ITEM_DELIMITER, l.tokenType)
         TestCase.assertEquals(5, l.tokenStart)
         TestCase.assertEquals(6, l.tokenEnd)
         TestCase.assertEquals(",", l.tokenText)
@@ -67,31 +68,31 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         TestCase.assertEquals("off", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_ITEM_DELIMITER, l.tokenType)
+        assertEquals(_NeonTypes.T_ITEM_DELIMITER, l.tokenType)
         TestCase.assertEquals(9, l.tokenStart)
         TestCase.assertEquals(10, l.tokenEnd)
         TestCase.assertEquals(",", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_LITERAL, l.tokenType)
+        assertEquals(_NeonTypes.T_LITERAL, l.tokenType)
         TestCase.assertEquals(10, l.tokenStart)
         TestCase.assertEquals(14, l.tokenEnd)
         TestCase.assertEquals("TruE", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_ITEM_DELIMITER, l.tokenType)
+        assertEquals(_NeonTypes.T_ITEM_DELIMITER, l.tokenType)
         TestCase.assertEquals(14, l.tokenStart)
         TestCase.assertEquals(15, l.tokenEnd)
         TestCase.assertEquals(",", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_STRING, l.tokenType)
+        assertEquals(_NeonTypes.T_STRING, l.tokenType)
         TestCase.assertEquals(15, l.tokenStart)
         TestCase.assertEquals(21, l.tokenEnd)
         TestCase.assertEquals("\"true\"", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_RBRACE_SQUARE, l.tokenType)
+        assertEquals(_NeonTypes.T_RBRACE_SQUARE, l.tokenType)
         TestCase.assertEquals(21, l.tokenStart)
         TestCase.assertEquals(22, l.tokenEnd)
         TestCase.assertEquals("]", l.tokenText)

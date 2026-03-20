@@ -1,5 +1,5 @@
 {
-	parserClass="dev.noctud.neon.parser.NeonParser2"
+	parserClass="dev.noctud.neon.parser.NeonParser"
 	parserUtilClass="dev.noctud.neon.parser.NeonParserUtil"
 
 	extends="dev.noctud.neon.psi.impl.elements.NeonPsiElementImpl"
@@ -28,12 +28,12 @@ array              ::= (<<isSameKeyValPair>> T_INDENT* keyValPair)+
 
 innerArray         ::= <<isInnerKeyValPair>> T_INDENT* keyValPair (<<isSameKeyValPair>> T_INDENT* keyValPair)*
 
-entityParameters   ::= T_LPAREN T_INDENT* arrayContent T_INDENT* T_RPAREN
+entityParameters   ::= T_LPAREN T_INDENT* arrayContent? T_INDENT* T_RPAREN
 
 //todo: entity rules
 
-inlineArray        ::= T_LBRACE_SQUARE T_INDENT* arrayContent T_INDENT* T_RBRACE_SQUARE
-                        | T_LBRACE_CURLY T_INDENT* arrayContent T_INDENT* T_RBRACE_CURLY
+inlineArray        ::= T_LBRACE_SQUARE T_INDENT* arrayContent? T_INDENT* T_RBRACE_SQUARE
+                        | T_LBRACE_CURLY T_INDENT* arrayContent? T_INDENT* T_RBRACE_CURLY
 private
 arrayContent       ::= arrayValue+ T_INDENT* (T_INDENT* T_ITEM_DELIMITER T_INDENT* arrayValue+ T_INDENT*)* T_INDENT* T_ITEM_DELIMITER?
 
@@ -43,17 +43,21 @@ arrayKey           ::= defaultKey | (T_INDENT* defaultKeyElement ((T_ASSIGNMENT 
 
 arrayKeyValuePair  ::= arrayKey value?
 
-keyValPair         ::= key (value | innerArray)?
+keyValPair         ::= bulletKeyValPair | namedKeyValPair
 
-key                ::= T_ARRAY_BULLET | defaultKey
+bulletKeyValPair   ::= T_ARRAY_BULLET (namedKeyValPair innerArray? | value | innerArray)?
+
+namedKeyValPair    ::= key (value | innerArray)?
+
+key                ::= defaultKey
 
 private
-defaultKey         ::= defaultKeyElement (T_COLON | ":")
+defaultKey         ::= defaultKeyElement (T_COLON | ":" | T_ASSIGNMENT | "=")
 
 private
 defaultKeyElement  ::= scalar
 
-value              ::= inlineArray | (scalar | entityParameters)+
+value              ::= inlineArray entityParameters? | (scalar | entityParameters)+
 
 scalar             ::= T_LITERAL | T_STRING | T_DATE_TIME | T_NUMBER | T_CONCATENATION | T_DOUBLE_COLON | T_ASSIGNMENT
 

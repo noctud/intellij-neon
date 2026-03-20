@@ -1,15 +1,19 @@
 NeonFile:ArrayNoSpaceColon.neon
-  Neon array
-    Neon key-val pair
-      Neon key
-        Neon scalar
-          PsiElement([Neon] string)('"a"')
-      PsiElement([Neon] :)(':')
-      Neon scalar
-        PsiElement([Neon] string)('"b"')
-    PsiElement([Neon] indent)('\n')
-    NeonPsiElementImpl([Neon] Item)
-      PsiElement([Neon] -)('-')
-      Neon scalar
-        PsiElement([Neon] string)('"c"')
-    PsiElement([Neon] indent)('\n')
+  NeonArrayImpl([Neon] ARRAY)
+    NeonKeyValPairImpl([Neon] KEY_VAL_PAIR)
+      NeonKeyValPairImpl([Neon] NAMED_KEY_VAL_PAIR)
+        NeonKeyImpl([Neon] KEY)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_STRING)('"a"')
+          PsiElement([Neon] T_COLON)(':')
+        NeonValueImpl([Neon] VALUE)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_STRING)('"b"')
+    PsiElement([Neon] T_INDENT)('\n')
+    NeonKeyValPairImpl([Neon] KEY_VAL_PAIR)
+      NeonKeyValPairImpl([Neon] BULLET_KEY_VAL_PAIR)
+        PsiElement([Neon] T_ARRAY_BULLET)('-')
+        NeonValueImpl([Neon] VALUE)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_STRING)('"c"')
+  PsiElement([Neon] T_INDENT)('\n')

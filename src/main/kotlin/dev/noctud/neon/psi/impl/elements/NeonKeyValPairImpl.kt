@@ -2,36 +2,22 @@ package dev.noctud.neon.psi.impl.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.tree.TokenSet
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.NonNls
-import dev.noctud.neon.parser.NeonElementTypes
+import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonKey
 import dev.noctud.neon.psi.elements.NeonKeyValPair
 import dev.noctud.neon.psi.elements.NeonValue
 
 class NeonKeyValPairImpl(astNode: ASTNode) : NeonPsiElementImpl(astNode), NeonKeyValPair {
-    override fun toString(): String {
-        return "Neon key-val pair"
-    }
-
     override val key: NeonKey?
         get() {
-            val keys: Array<ASTNode?>?
-
-            val compoundKeys =
-                node.getChildren(TokenSet.create(NeonElementTypes.COMPOUND_KEY))
-            keys = if (compoundKeys.size > 0) {
-                compoundKeys[0]!!.getChildren(TokenSet.create(NeonElementTypes.KEY))
-            } else {
-                node.getChildren(TokenSet.create(NeonElementTypes.KEY))
-            }
-
-            return if (keys.isNotEmpty()) keys[0]!!.psi as NeonKey? else null
+            val keys = node.getChildren(KEY_SET)
+            return if (keys.isNotEmpty()) keys[0].psi as NeonKey? else null
         }
 
     override val keyText: String?
-        get() = this.key?.text
+        get() = this.key?.keyText
 
     override val value: NeonValue?
         get() {
@@ -49,5 +35,9 @@ class NeonKeyValPairImpl(astNode: ASTNode) : NeonPsiElementImpl(astNode), NeonKe
 
     override fun getName(): String? {
         return this.keyText
+    }
+
+    companion object {
+        private val KEY_SET = com.intellij.psi.tree.TokenSet.create(_NeonTypes.KEY)
     }
 }

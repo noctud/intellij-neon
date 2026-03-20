@@ -22,7 +22,7 @@ class NeonStructureViewElement(element: PsiElement?) : PsiTreeElementBase<PsiEle
                 addArrayElements(elements, element)
             }
         } else if (element is NeonKeyValPair && element.value is NeonArray) {
-            addArrayElements(elements, element.value!!)
+            addArrayElements(elements, element.value ?: return elements)
         } else if (element is NeonArray) {
             addArrayElements(elements, element)
         }

@@ -1,6 +1,7 @@
 package dev.noctud.neon.lexer
 
 import com.intellij.lexer.Lexer
+import com.intellij.psi.TokenType
 import com.intellij.testFramework.UsefulTestCase
 import junit.framework.TestCase
 import org.junit.Test
@@ -15,25 +16,25 @@ class NeonLexer2Test : UsefulTestCase() {
         val l = createLexer()
         l.start("key: 'val'")
 
-        assertEquals(NeonTokenTypes.NEON_LITERAL, l.tokenType)
+        assertEquals(_NeonTypes.T_LITERAL, l.tokenType)
         TestCase.assertEquals(0, l.tokenStart)
         TestCase.assertEquals(3, l.tokenEnd)
         TestCase.assertEquals("key", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_COLON, l.tokenType)
+        assertEquals(_NeonTypes.T_COLON, l.tokenType)
         TestCase.assertEquals(3, l.tokenStart)
         TestCase.assertEquals(4, l.tokenEnd)
         TestCase.assertEquals(":", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_WHITESPACE, l.tokenType)
+        assertEquals(TokenType.WHITE_SPACE, l.tokenType)
         TestCase.assertEquals(4, l.tokenStart)
         TestCase.assertEquals(5, l.tokenEnd)
         TestCase.assertEquals(" ", l.tokenText)
         l.advance()
 
-        assertEquals(NeonTokenTypes.NEON_STRING, l.tokenType)
+        assertEquals(_NeonTypes.T_STRING, l.tokenType)
         TestCase.assertEquals(5, l.tokenStart)
         TestCase.assertEquals(10, l.tokenEnd)
         TestCase.assertEquals("'val'", l.tokenText)
@@ -47,7 +48,7 @@ class NeonLexer2Test : UsefulTestCase() {
         val l = createLexer()
         l.start("key: 'val'", 4, 5)
 
-        assertEquals(NeonTokenTypes.NEON_INDENT, l.tokenType)
+        assertEquals(_NeonTypes.T_INDENT, l.tokenType)
         TestCase.assertEquals(4, l.tokenStart)
         TestCase.assertEquals(5, l.tokenEnd)
         TestCase.assertEquals(" ", l.tokenText)

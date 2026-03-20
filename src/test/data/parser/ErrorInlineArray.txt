@@ -1,115 +1,74 @@
 NeonFile:ErrorInlineArray.neon
-  PsiComment([Neon] comment)('#invalid inline arrays')
-  PsiElement([Neon] indent)('\n')
-  Neon array
-    NeonPsiElementImpl([Neon] Item)
-      PsiElement([Neon] -)('-')
-      PsiWhiteSpace(' ')
-      Neon array
-        PsiElement([Neon] [)('[')
-        Neon scalar
-          PsiElement([Neon] literal)('1')
-        PsiElement([Neon] ,)(',')
-        PsiErrorElement:unexpected token [Neon] ,
-          <empty list>
-        PsiElement([Neon] ,)(',')
-        PsiErrorElement:Expected indent, delimiter or closing bracket
-          <empty list>
-        Neon scalar
-          PsiElement([Neon] literal)('2')
-        PsiElement([Neon] ])(']')
-    PsiElement([Neon] indent)('\n')
-    NeonPsiElementImpl([Neon] Item)
-      PsiElement([Neon] -)('-')
-      PsiWhiteSpace(' ')
-      Neon array
-        PsiElement([Neon] [)('[')
-        Neon scalar
-          PsiElement([Neon] literal)('1')
-        PsiElement([Neon] ,)(',')
-        PsiErrorElement:unexpected token [Neon] ,
-          <empty list>
-        PsiElement([Neon] ,)(',')
-        PsiElement([Neon] ])(']')
-    PsiElement([Neon] indent)('\n')
-    NeonPsiElementImpl([Neon] Item)
-      PsiElement([Neon] -)('-')
-      PsiWhiteSpace(' ')
-      Neon array
-        PsiElement([Neon] [)('[')
-        PsiElement([Neon] indent)('\n')
-        PsiErrorElement:unexpected token [Neon] -
-          <empty list>
-        PsiElement([Neon] -)('-')
-        PsiErrorElement:Expected indent, delimiter or closing bracket
-          <empty list>
-        PsiWhiteSpace(' ')
-        Neon scalar
-          PsiElement([Neon] literal)('1')
-        PsiElement([Neon] indent)('\n')
-        PsiElement([Neon] ])(']')
-        PsiElement([Neon] indent)('\n')
-    PsiElement([Neon] indent)('\n')
-    NeonPsiElementImpl([Neon] Item)
-      PsiElement([Neon] -)('-')
-      PsiWhiteSpace(' ')
-      Neon array
-        PsiElement([Neon] [)('[')
-        Neon key-val pair
-          Neon key
-            Neon scalar
-              PsiElement([Neon] literal)('foo')
-          PsiElement([Neon] :)(':')
-          PsiElement([Neon] indent)('\n    ')
-        PsiErrorElement:unexpected token [Neon] -
-          <empty list>
-        PsiElement([Neon] -)('-')
-        PsiErrorElement:Expected indent, delimiter or closing bracket
-          <empty list>
-        PsiWhiteSpace(' ')
-        Neon scalar
-          PsiElement([Neon] literal)('bar')
-        PsiElement([Neon] indent)('\n')
-        PsiElement([Neon] ])(']')
-        PsiElement([Neon] indent)('\n')
-    PsiElement([Neon] indent)('\n')
-    NeonPsiElementImpl([Neon] Item)
-      PsiElement([Neon] -)('-')
-      PsiWhiteSpace(' ')
-      Neon array
-        PsiElement([Neon] [)('[')
-        Neon key-val pair
-          Neon key
-            Neon scalar
-              PsiElement([Neon] literal)('foo')
-          PsiElement([Neon] :)(':')
-          PsiWhiteSpace(' ')
-          Neon scalar
-            PsiElement([Neon] string)('"bar"')
-          PsiErrorElement:Expected indent, delimiter or closing bracket
-            <empty list>
-        PsiWhiteSpace(' ')
-        Neon key-val pair
-          Neon key
-            Neon scalar
-              PsiElement([Neon] literal)('lorem')
-          PsiElement([Neon] :)(':')
-          PsiWhiteSpace(' ')
-          Neon scalar
-            PsiElement([Neon] literal)('ispum')
-        PsiElement([Neon] ])(']')
-    PsiElement([Neon] indent)('\n')
-    NeonPsiElementImpl([Neon] Item)
-      PsiElement([Neon] -)('-')
-      PsiWhiteSpace(' ')
-      Neon array
-        PsiElement([Neon] [)('[')
-        Neon scalar
-          PsiElement([Neon] string)('"foo"')
-        PsiErrorElement:Expected indent, delimiter or closing bracket
-          <empty list>
-        PsiWhiteSpace(' ')
-        Neon scalar
-          PsiElement([Neon] string)('"bar"')
-        PsiElement([Neon] ])(']')
-    PsiElement([Neon] indent)('\n')
+  PsiComment([Neon] T_COMMENT)('#invalid inline arrays')
+  PsiElement([Neon] T_INDENT)('\n')
+  NeonArrayImpl([Neon] ARRAY)
+    NeonKeyValPairImpl([Neon] KEY_VAL_PAIR)
+      NeonKeyValPairImpl([Neon] BULLET_KEY_VAL_PAIR)
+        PsiElement([Neon] T_ARRAY_BULLET)('-')
+  PsiWhiteSpace(' ')
+  PsiElement([Neon] T_LBRACE_SQUARE)('[')
+  PsiElement([Neon] T_LITERAL)('1')
+  PsiElement([Neon] T_ITEM_DELIMITER)(',')
+  PsiErrorElement:<array value>, '[Neon] T_INDENT' or '[Neon] T_RBRACE_SQUARE' expected, got ','
+    PsiElement([Neon] T_ITEM_DELIMITER)(',')
+  PsiElement(DUMMY_BLOCK)
+    PsiElement([Neon] T_LITERAL)('2')
+    PsiElement([Neon] T_RBRACE_SQUARE)(']')
+    PsiElement([Neon] T_INDENT)('\n')
+    PsiElement([Neon] T_ARRAY_BULLET)('-')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LBRACE_SQUARE)('[')
+    PsiElement([Neon] T_LITERAL)('1')
+    PsiElement([Neon] T_ITEM_DELIMITER)(',')
+    PsiElement([Neon] T_ITEM_DELIMITER)(',')
+    PsiElement([Neon] T_RBRACE_SQUARE)(']')
+    PsiElement([Neon] T_INDENT)('\n')
+  PsiElement(DUMMY_BLOCK)
+    PsiElement([Neon] T_ARRAY_BULLET)('-')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LBRACE_SQUARE)('[')
+    PsiElement([Neon] T_INDENT)('\n')
+    PsiElement([Neon] T_ARRAY_BULLET)('-')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LITERAL)('1')
+    PsiElement([Neon] T_INDENT)('\n')
+    PsiElement([Neon] T_RBRACE_SQUARE)(']')
+    PsiElement([Neon] T_INDENT)('\n')
+    PsiElement([Neon] T_INDENT)('\n')
+    PsiElement([Neon] T_ARRAY_BULLET)('-')
+  PsiElement(DUMMY_BLOCK)
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LBRACE_SQUARE)('[')
+    PsiElement([Neon] T_LITERAL)('foo')
+    PsiElement([Neon] T_COLON)(':')
+    PsiElement([Neon] T_INDENT)('\n    ')
+    PsiElement([Neon] T_ARRAY_BULLET)('-')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LITERAL)('bar')
+    PsiElement([Neon] T_INDENT)('\n')
+    PsiElement([Neon] T_RBRACE_SQUARE)(']')
+    PsiElement([Neon] T_INDENT)('\n')
+    PsiElement([Neon] T_INDENT)('\n')
+  PsiElement(DUMMY_BLOCK)
+    PsiElement([Neon] T_ARRAY_BULLET)('-')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LBRACE_SQUARE)('[')
+    PsiElement([Neon] T_LITERAL)('foo')
+    PsiElement([Neon] T_COLON)(':')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_STRING)('"bar"')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LITERAL)('lorem')
+    PsiElement([Neon] T_COLON)(':')
+    PsiWhiteSpace(' ')
+    PsiElement([Neon] T_LITERAL)('ispum')
+    PsiElement([Neon] T_RBRACE_SQUARE)(']')
+    PsiElement([Neon] T_INDENT)('\n')
+  PsiElement([Neon] T_ARRAY_BULLET)('-')
+  PsiWhiteSpace(' ')
+  PsiElement([Neon] T_LBRACE_SQUARE)('[')
+  PsiElement([Neon] T_STRING)('"foo"')
+  PsiWhiteSpace(' ')
+  PsiElement([Neon] T_STRING)('"bar"')
+  PsiElement([Neon] T_RBRACE_SQUARE)(']')
+  PsiElement([Neon] T_INDENT)('\n')

@@ -1,10 +1,10 @@
-[Neon] literal
-[Neon] :
+[Neon] T_LITERAL
+[Neon] T_COLON
 WHITE_SPACE
-[Neon] literal
-[Neon] indent
-[Neon] literal
-[Neon] :
+[Neon] T_LITERAL
+[Neon] T_INDENT
+[Neon] T_LITERAL
+[Neon] T_COLON
 WHITE_SPACE
-[Neon] string
-[Neon] indent
+[Neon] T_STRING
+[Neon] T_INDENT

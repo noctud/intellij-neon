@@ -5,15 +5,20 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.jetbrains.php.PhpIndex
-import dev.noctud.neon.psi.elements.NeonScalar
+import dev.noctud.neon.psi.impl.elements.NeonScalarImpl
 
 class GoToClassHandler : GotoDeclarationHandler {
     override fun getGotoDeclarationTargets(element: PsiElement?, offset: Int, editor: Editor?): Array<PsiElement?> {
-        if (element == null || element.parent == null || (element.parent !is NeonScalar)) {
+        if (element == null || element.parent == null || element.parent !is NeonScalarImpl) {
             return arrayOfNulls(0)
         }
+        val fqn = (element.parent as NeonScalarImpl).classFqn ?: return arrayOfNulls(0)
+
         val phpIndex = PhpIndex.getInstance(element.project)
-        val classes = phpIndex.getAnyByFQN((element.parent as NeonScalar).valueText)
+        var classes = phpIndex.getAnyByFQN(fqn)
+        if (classes.isEmpty() && !fqn.startsWith("\\")) {
+            classes = phpIndex.getAnyByFQN("\\$fqn")
+        }
 
         return classes.toTypedArray<PsiElement?>()
     }

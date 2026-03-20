@@ -5,11 +5,13 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.HighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase
+import com.intellij.psi.TokenType
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.tree.TokenSet
 import dev.noctud.neon.lexer.NeonHighlightingLexer
 import dev.noctud.neon.lexer.NeonLexer
 import dev.noctud.neon.lexer.NeonTokenTypes
+import dev.noctud.neon.lexer._NeonTypes
 
 class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
     override fun getHighlightingLexer(): Lexer {
@@ -46,19 +48,18 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
             TextAttributesKey.createTextAttributesKey(KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD)
 
         // Groups of IElementType's
-        val sBAD: TokenSet = TokenSet.create(NeonTokenTypes.NEON_UNKNOWN)
-        val sCOMMENTS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_COMMENT)
-        val sIDENTIFIERS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_KEY) //, NEON_IDENTIFIER, NEON_LITERAL);
+        val sBAD: TokenSet = TokenSet.create(TokenType.BAD_CHARACTER, _NeonTypes.T_UNKNOWN)
+        val sCOMMENTS: TokenSet = TokenSet.create(_NeonTypes.T_COMMENT)
+        val sIDENTIFIERS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_KEY)
         val sINTERPUNCTION: TokenSet = TokenSet.create(
-            NeonTokenTypes.NEON_BLOCK_INHERITENCE,
-            NeonTokenTypes.NEON_LPAREN,
-            NeonTokenTypes.NEON_RPAREN,
-            NeonTokenTypes.NEON_LBRACE_CURLY,
-            NeonTokenTypes.NEON_RBRACE_CURLY,
-            NeonTokenTypes.NEON_LBRACE_SQUARE,
-            NeonTokenTypes.NEON_RBRACE_SQUARE,
-            NeonTokenTypes.NEON_ITEM_DELIMITER,
-            NeonTokenTypes.NEON_ASSIGNMENT
+            _NeonTypes.T_LPAREN,
+            _NeonTypes.T_RPAREN,
+            _NeonTypes.T_LBRACE_CURLY,
+            _NeonTypes.T_RBRACE_CURLY,
+            _NeonTypes.T_LBRACE_SQUARE,
+            _NeonTypes.T_RBRACE_SQUARE,
+            _NeonTypes.T_ITEM_DELIMITER,
+            _NeonTypes.T_ASSIGNMENT
         )
         val sNUMBERS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_NUMBER)
         val sKEYWORDS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_KEYWORD)

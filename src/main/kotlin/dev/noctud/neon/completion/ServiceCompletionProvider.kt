@@ -61,16 +61,16 @@ class ServiceCompletionProvider : CompletionProvider<CompletionParameters?>() {
 
     private fun getServicesFromNeonFile(result: MutableList<String>, file: NeonFile) {
         if (file.value is NeonArray) {
-            val map = (file.value as NeonArray).map
-            if (map!!.containsKey("services")) {
-                addServiceFromNeonArray(result, (map.get("services") as NeonArray?)!!)
-            }
+            val map = (file.value as NeonArray).map ?: return
+            val services = map["services"] as? NeonArray ?: return
+            addServiceFromNeonArray(result, services)
         }
     }
 
     private fun addServiceFromNeonArray(result: MutableList<String>, hash: NeonArray) {
-        for (key in hash.keys!!) {
-            result.add(key!!.keyText!!)
+        for (key in hash.keys ?: return) {
+            val text = key?.keyText ?: continue
+            result.add(text)
         }
     }
 }

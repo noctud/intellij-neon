@@ -3,6 +3,6 @@
 [Neon] T_INDENT
 [Neon] T_LITERAL
 [Neon] T_COLON
-[Neon] T_WHITESPACE
+WHITE_SPACE
 [Neon] T_LITERAL
 [Neon] T_INDENT

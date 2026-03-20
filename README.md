@@ -25,13 +25,19 @@ Download `instrumented.jar` file from [latest release](https://github.com/noctud
 Supported Features
 ------------------
 
-* Syntax highlighting and code completion for `PHP` classes in `Neon` files
+* Syntax highlighting
+* Code completion for PHP classes, services, and Nette configuration keys
+* Go to declaration for PHP classes (Ctrl+Click), including `@`-prefixed service references
+* Find Usages — PHP class usages in `.neon` files appear in search results
+* Rename refactoring — renaming a PHP class updates references in `.neon` files
+* Duplicate key detection
+* Tab/space mixing detection
 
 Building
 ------------
 
 ```sh
-./gradlew buildPlugin
+./gradlew build
 ```
 
 Testing in sandbox IDE

@@ -5,122 +5,148 @@ import com.intellij.lang.parser.GeneratedParserUtilBase
 import com.intellij.psi.tree.IElementType
 import dev.noctud.neon.lexer.NeonTypes
 import dev.noctud.neon.lexer._NeonTypes
-import kotlin.Boolean
-import kotlin.Int
-import kotlin.checkNotNull
-import kotlin.text.substring
 
 object NeonParserUtil : GeneratedParserUtilBase() {
-    private var indentMatcher: IndentMatcher? = null
+    /**
+     * Per-thread parser state. IntelliJ parses multiple files concurrently,
+     * so shared mutable state on the singleton object would cause race conditions.
+     */
+    private class ParserState {
+        val indentStack = mutableListOf<String>()
+        var rootIndent: String? = null
+    }
+
+    private val state = ThreadLocal.withInitial { ParserState() }
 
     @JvmStatic
     fun initIndentMatcher(builder: PsiBuilder?, level: Int): Boolean {
-        indentMatcher = IndentMatcher()
+        val s = state.get()
+        s.indentStack.clear()
+        s.rootIndent = null
         return true
-    }
-
-    private fun getIndentMatcher(): IndentMatcher {
-        checkNotNull(indentMatcher)
-        return indentMatcher!!
-    }
-
-    fun isComment(builder: PsiBuilder, level: Int): Boolean {
-        if (builder.tokenType !== _NeonTypes.T_INDENT) {
-            return builder.tokenType === _NeonTypes.T_COMMENT
-        }
-        return getNextTokenAfterIndent(builder) === _NeonTypes.T_COMMENT
     }
 
     @JvmStatic
     fun isInnerKeyValPair(builder: PsiBuilder, level: Int): Boolean {
-        return isKeyValPair(builder, level, Check.INNER)
+        val token = builder.tokenType
+        if (token !== _NeonTypes.T_INDENT) {
+            return false // Can't start inner array without an indent
+        }
+
+        val indentText = getLastIndentText(builder) ?: return false
+        val currentIndent = normalizeIndent(indentText)
+
+        val s = state.get()
+        val parentIndent = s.indentStack.lastOrNull() ?: s.rootIndent ?: ""
+        if (currentIndent.length <= parentIndent.length) {
+            return false // Not deeper than parent
+        }
+
+        // Verify the next non-indent token is a key element
+        val nextToken = getNextTokenAfterIndent(builder)
+        if (nextToken == null || !NeonTypes.KEY_ELEMENTS.contains(nextToken)) {
+            return false
+        }
+
+        s.indentStack.add(currentIndent)
+        return true
     }
 
     @JvmStatic
     fun isSameKeyValPair(builder: PsiBuilder, level: Int): Boolean {
-        return isKeyValPair(builder, level, Check.SAME_LEVEL)
-    }
-
-    private fun isKeyValPair(builder: PsiBuilder, level: Int, check: Check?): Boolean {
         val token = builder.tokenType
+        val s = state.get()
+
+        // If not at an indent token, we're on the same line — check if it's a key element
         if (token !== _NeonTypes.T_INDENT) {
+            if (s.rootIndent == null) {
+                s.rootIndent = "" // Root level starts without indent (normal case)
+            }
             return NeonTypes.KEY_ELEMENTS.contains(token)
         }
 
-        val indent = getLastTokenWithType(builder, _NeonTypes.T_INDENT) ?: return true
+        val indentText = getLastIndentText(builder) ?: return false
+        val currentIndent = normalizeIndent(indentText)
 
-        val current = normalizeIndent(indent)
-        val success = getIndentMatcher().addIfAbsent(current.javaClass.toString())
-        if (!success) {
-            builder.error("Bad indent")
+        // Determine expected indent: stack top for nested blocks, rootIndent for root level
+        val expectedIndent = s.indentStack.lastOrNull()
+
+        if (expectedIndent == null) {
+            // At root level
+            if (s.rootIndent == null) {
+                // First indented root item — establish root indent
+                val nextToken = getNextTokenAfterIndent(builder)
+                if (nextToken != null && NeonTypes.KEY_ELEMENTS.contains(nextToken)) {
+                    s.rootIndent = currentIndent
+                    return true
+                }
+                return false
+            }
+            // Subsequent root items
+            if (currentIndent == s.rootIndent) {
+                val nextToken = getNextTokenAfterIndent(builder)
+                return nextToken != null && NeonTypes.KEY_ELEMENTS.contains(nextToken)
+            }
             return false
         }
 
-        var indentLevel = getIndentMatcher().getLevel(current)
-        if (indentLevel < 0) {
-            builder.error("Bad indent")
+        if (currentIndent == expectedIndent) {
+            // Verify the next non-indent token is a key element
+            val nextToken = getNextTokenAfterIndent(builder)
+            return nextToken != null && NeonTypes.KEY_ELEMENTS.contains(nextToken)
+        }
+
+        if (currentIndent.length < expectedIndent.length) {
+            // We've left this block — pop the stack entry for this level
+            // so parent levels can match
+            s.indentStack.removeLast()
             return false
         }
 
-        indentLevel = (indentLevel + 1) * 4
-        if (check == Check.INNER) {
-            return indentLevel > (level - 4)
-        } else if (check == Check.SAME_LEVEL) {
-            return indentLevel == (if (level % 4 == 0) level else (level - 2))
-        }
-        return indentLevel < level
+        // currentIndent > expectedIndent — this is a deeper indent, not same level
+        return false
     }
 
     private fun normalizeIndent(indent: String): String {
         return indent.replace("\n", "")
     }
 
-    private fun getLastTokenWithType(builder: PsiBuilder, type: IElementType?): String? {
+    /**
+     * Get the text of the last consecutive T_INDENT token at the current position.
+     * Uses mark/rollback to not consume tokens.
+     */
+    private fun getLastIndentText(builder: PsiBuilder): String? {
         val marker = builder.mark()
-        val indent = getLastTokenWithType(builder, type, builder.tokenText)
+        var lastText = builder.tokenText
+        while (builder.tokenType === _NeonTypes.T_INDENT) {
+            lastText = builder.tokenText
+            builder.advanceLexer()
+            if (builder.tokenType !== _NeonTypes.T_INDENT) break
+        }
         marker.rollbackTo()
-        return indent
+        return lastText
     }
 
+    /**
+     * Get the token type of the first non-indent token after the current position.
+     */
     private fun getNextTokenAfterIndent(builder: PsiBuilder): IElementType? {
         val marker = builder.mark()
-        val nextToken = getNextTokenAfterIndent(builder, _NeonTypes.T_INDENT)
+        while (builder.tokenType === _NeonTypes.T_INDENT) {
+            builder.advanceLexer()
+        }
+        val result = builder.tokenType
         marker.rollbackTo()
-        return nextToken
+        return result
     }
 
-    private fun getNextTokenAfterIndent(builder: PsiBuilder, type: IElementType?): IElementType? {
-        if (builder.tokenType === type) {
-            builder.advanceLexer()
-            return getNextTokenAfterIndent(builder, type)
-        }
-        return builder.tokenType
-    }
-
-    private fun getLastTokenWithType(builder: PsiBuilder, type: IElementType?, prevIndent: String?): String? {
-        if (builder.tokenType === type) {
-            val current = builder.tokenText
-            builder.advanceLexer()
-            return getLastTokenWithType(builder, type, current)
-        }
-        return prevIndent
-    }
-
-    private enum class Check {
-        SAME_LEVEL,
-        INNER,
-    }
-
+    // Keep IndentMatcher for the test that uses it directly
     class IndentMatcher {
         @JvmField
-        val indents: MutableList<String> = ArrayList<String>()
+        val indents: MutableList<String> = ArrayList()
         private var length = 0
 
-        override fun toString(): String {
-            return indents.joinToString("")
-        }
-
-        fun addIfAbsent(indent: kotlin.String): Boolean {
+        fun addIfAbsent(indent: String): Boolean {
             val level = getLevel(indent)
             if (level != ERROR_ADDITIONS) {
                 return level != ERROR_INVALID
@@ -134,11 +160,11 @@ object NeonParserUtil : GeneratedParserUtilBase() {
             return true
         }
 
-        fun match(indent: kotlin.String): Boolean {
-            return getLevel(indent) < 0
+        fun match(indent: String): Boolean {
+            return getLevel(indent) >= 0
         }
 
-        fun getLevel(indent: kotlin.String): Int {
+        fun getLevel(indent: String): Int {
             var level = 0
             var offset = 0
             for (current in indents) {

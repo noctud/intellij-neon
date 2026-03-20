@@ -14,7 +14,7 @@ class NeonFileImpl(viewProvider: FileViewProvider) : PsiFileBase(viewProvider, N
     }
 
     override fun toString(): String {
-        return "NeonFile: $name"
+        return "NeonFile:$name"
     }
 
     override val value: NeonPsiElement?

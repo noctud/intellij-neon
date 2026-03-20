@@ -1,20 +1,24 @@
 NeonFile:Array1.neon
-  Neon array
-    Neon key-val pair
-      Neon key
-        Neon scalar
-          PsiElement([Neon] literal)('name')
-      PsiElement([Neon] :)(':')
-      PsiWhiteSpace(' ')
-      Neon scalar
-        PsiElement([Neon] literal)('Jan')
-    PsiElement([Neon] indent)('\n')
-    Neon key-val pair
-      Neon key
-        Neon scalar
-          PsiElement([Neon] literal)('surname')
-      PsiElement([Neon] :)(':')
-      PsiWhiteSpace(' ')
-      Neon scalar
-        PsiElement([Neon] string)('"Dolecek"')
-    PsiElement([Neon] indent)('\n')
+  NeonArrayImpl([Neon] ARRAY)
+    NeonKeyValPairImpl([Neon] KEY_VAL_PAIR)
+      NeonKeyValPairImpl([Neon] NAMED_KEY_VAL_PAIR)
+        NeonKeyImpl([Neon] KEY)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_LITERAL)('name')
+          PsiElement([Neon] T_COLON)(':')
+        PsiWhiteSpace(' ')
+        NeonValueImpl([Neon] VALUE)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_LITERAL)('Jan')
+    PsiElement([Neon] T_INDENT)('\n')
+    NeonKeyValPairImpl([Neon] KEY_VAL_PAIR)
+      NeonKeyValPairImpl([Neon] NAMED_KEY_VAL_PAIR)
+        NeonKeyImpl([Neon] KEY)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_LITERAL)('surname')
+          PsiElement([Neon] T_COLON)(':')
+        PsiWhiteSpace(' ')
+        NeonValueImpl([Neon] VALUE)
+          NeonScalarImpl([Neon] SCALAR)
+            PsiElement([Neon] T_STRING)('"Dolecek"')
+  PsiElement([Neon] T_INDENT)('\n')

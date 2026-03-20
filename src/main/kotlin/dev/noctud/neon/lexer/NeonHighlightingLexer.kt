@@ -2,6 +2,7 @@ package dev.noctud.neon.lexer
 
 import com.intellij.lexer.Lexer
 import com.intellij.lexer.LookAheadLexer
+import com.intellij.psi.TokenType
 
 /**
  * Lexer used for syntax highlighting
@@ -12,17 +13,17 @@ class NeonHighlightingLexer(baseLexer: Lexer) : LookAheadLexer(baseLexer, 1) {
     override fun lookAhead(baseLexer: Lexer) {
         val currentToken = baseLexer.tokenType
 
-        if (currentToken === NeonTokenTypes.NEON_LITERAL && KEYWORDS.contains(baseLexer.tokenText)) {
+        if (currentToken === _NeonTypes.T_LITERAL && KEYWORDS.contains(baseLexer.tokenText)) {
             advanceLexer(baseLexer)
             replaceCachedType(0, NeonTokenTypes.NEON_KEYWORD)
-        } else if (currentToken === NeonTokenTypes.NEON_LITERAL || currentToken === NeonTokenTypes.NEON_STRING) {
+        } else if (currentToken === _NeonTypes.T_LITERAL || currentToken === _NeonTypes.T_STRING) {
             advanceLexer(baseLexer)
 
-            if (baseLexer.tokenType === NeonTokenTypes.NEON_WHITESPACE) {
+            if (baseLexer.tokenType === TokenType.WHITE_SPACE) {
                 advanceLexer(baseLexer)
             }
 
-            if (baseLexer.tokenType === NeonTokenTypes.NEON_COLON) {
+            if (baseLexer.tokenType === _NeonTypes.T_COLON) {
                 advanceLexer(baseLexer)
                 replaceCachedType(0, NeonTokenTypes.NEON_KEY)
             }
