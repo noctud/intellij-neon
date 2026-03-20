@@ -32,6 +32,7 @@
         <enterHandlerDelegate implementation="dev.noctud.neon.editor.NeonEnterHandler"/>
 
         <gotoDeclarationHandler implementation="dev.noctud.neon.reference.GoToClassHandler"/>
+        <gotoDeclarationHandler implementation="dev.noctud.neon.reference.GoToParameterHandler"/>
         <annotator implementationClass="dev.noctud.neon.annotator.NeonAnnotator" language="neon"/>
     </extensions>
 </idea-plugin>

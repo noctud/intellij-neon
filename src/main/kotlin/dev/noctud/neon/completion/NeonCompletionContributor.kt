@@ -22,5 +22,10 @@ class NeonCompletionContributor : CompletionContributor() {
             StandardPatterns.instanceOf<PsiElement?>(PsiElement::class.java),
             ClassCompletionProvider()
         )
+        extend(
+            CompletionType.BASIC,
+            StandardPatterns.instanceOf<PsiElement?>(PsiElement::class.java),
+            ParameterCompletionProvider()
+        )
     }
 }

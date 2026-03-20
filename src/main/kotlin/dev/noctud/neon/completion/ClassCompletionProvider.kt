@@ -22,6 +22,9 @@ class ClassCompletionProvider : CompletionProvider<CompletionParameters?>() {
         results: CompletionResultSet
     ) {
         val curr = params.position.originalElement
+        // Don't suggest PHP classes inside %variable% context
+        if (curr.text.startsWith("%")) return
+
         val incompleteKey = CompletionUtil.isIncompleteKey(curr)
         if (!incompleteKey && (curr.parent !is NeonEntity) && (curr.parent !is NeonScalar)) {
             return

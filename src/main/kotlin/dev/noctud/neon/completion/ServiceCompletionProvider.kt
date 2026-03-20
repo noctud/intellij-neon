@@ -22,6 +22,7 @@ class ServiceCompletionProvider : CompletionProvider<CompletionParameters?>() {
         results: CompletionResultSet
     ) {
         curr = params.position.originalElement
+        if (curr!!.text.startsWith("%")) return
         if (curr!!.parent is NeonReference) {
             for (service in this.availableServices) {
                 results.addElement(LookupElementBuilder.create(service))

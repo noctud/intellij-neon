@@ -47,6 +47,10 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
         val KEYWORD: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD)
 
+        const val VARIABLE_ID: String = "Variable"
+        val VARIABLE: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(VARIABLE_ID, DefaultLanguageHighlighterColors.INSTANCE_FIELD)
+
         // Groups of IElementType's
         val sBAD: TokenSet = TokenSet.create(TokenType.BAD_CHARACTER, _NeonTypes.T_UNKNOWN)
         val sCOMMENTS: TokenSet = TokenSet.create(_NeonTypes.T_COMMENT)
@@ -63,6 +67,7 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
         )
         val sNUMBERS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_NUMBER)
         val sKEYWORDS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_KEYWORD)
+        val sVARIABLES: TokenSet = TokenSet.create(NeonTokenTypes.NEON_VARIABLE)
 
 
         // Static container
@@ -78,6 +83,7 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
             fillMap(ATTRIBUTES, sINTERPUNCTION, INTERPUNCTION)
             fillMap(ATTRIBUTES, sNUMBERS, NUMBER)
             fillMap(ATTRIBUTES, sKEYWORDS, KEYWORD)
+            fillMap(ATTRIBUTES, sVARIABLES, VARIABLE)
         }
     }
 }

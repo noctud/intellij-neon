@@ -81,6 +81,7 @@ class NeonColorsPage : ColorSettingsPage {
             AttributesDescriptor("colors.interpunction", NeonSyntaxHighlighter.INTERPUNCTION),
             AttributesDescriptor("colors.number", NeonSyntaxHighlighter.NUMBER),
             AttributesDescriptor("colors.keyword", NeonSyntaxHighlighter.KEYWORD),
+            AttributesDescriptor("colors.variable", NeonSyntaxHighlighter.VARIABLE),
         )
     }
 }

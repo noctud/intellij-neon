@@ -23,7 +23,7 @@ class NeonHighlightingLexer(baseLexer: Lexer) : LookAheadLexer(baseLexer, 1) {
                 advanceLexer(baseLexer)
             }
 
-            if (baseLexer.tokenType === _NeonTypes.T_COLON) {
+            if (baseLexer.tokenType === _NeonTypes.T_COLON || baseLexer.tokenType === _NeonTypes.T_ASSIGNMENT) {
                 advanceLexer(baseLexer)
                 replaceCachedType(0, NeonTokenTypes.NEON_KEY)
             }
@@ -40,5 +40,6 @@ class NeonHighlightingLexer(baseLexer: Lexer) : LookAheadLexer(baseLexer, 1) {
                 "null", "Null", "NULL"
             )
         )
+
     }
 }

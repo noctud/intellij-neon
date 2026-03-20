@@ -121,4 +121,5 @@ open class ParserTest : ParsingTestCase("", "neon", NeonParserDefinition()) {
     @Test fun testStringEdgeCases() = doParserTest(checkResult = true, suppressErrors = false)
     @Test fun testEmptyValues() = doParserTest(checkResult = true, suppressErrors = false)
     @Test fun testServiceReferences() = doParserTest(checkResult = true, suppressErrors = false)
+    @Test fun testNestedParameters() = doParserTest(checkResult = true, suppressErrors = false)
 }

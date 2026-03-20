@@ -59,7 +59,7 @@ defaultKeyElement  ::= scalar
 
 value              ::= inlineArray entityParameters? | (scalar | entityParameters)+
 
-scalar             ::= T_LITERAL | T_STRING | T_DATE_TIME | T_NUMBER | T_CONCATENATION | T_DOUBLE_COLON | T_ASSIGNMENT
+scalar             ::= T_LITERAL | T_STRING | T_DATE_TIME | T_NUMBER | T_VARIABLE | T_CONCATENATION | T_DOUBLE_COLON | T_ASSIGNMENT
 
 
 private
