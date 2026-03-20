@@ -27,5 +27,15 @@ class NeonCompletionContributor : CompletionContributor() {
             StandardPatterns.instanceOf<PsiElement?>(PsiElement::class.java),
             ParameterCompletionProvider()
         )
+        extend(
+            CompletionType.BASIC,
+            StandardPatterns.instanceOf<PsiElement?>(PsiElement::class.java),
+            PhpStanIdentifierCompletionProvider()
+        )
+        extend(
+            CompletionType.BASIC,
+            StandardPatterns.instanceOf<PsiElement?>(PsiElement::class.java),
+            ServiceRefCompletionProvider()
+        )
     }
 }

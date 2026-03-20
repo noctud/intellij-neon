@@ -45,7 +45,23 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
 
         const val KEYWORD_ID: String = "Keyword"
         val KEYWORD: TextAttributesKey =
-            TextAttributesKey.createTextAttributesKey(KEYWORD_ID, DefaultLanguageHighlighterColors.KEYWORD)
+            TextAttributesKey.createTextAttributesKey(KEYWORD_ID, DefaultLanguageHighlighterColors.NUMBER)
+
+        const val DATETIME_ID: String = "Datetime"
+        val DATETIME: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(DATETIME_ID, DefaultLanguageHighlighterColors.NUMBER)
+
+        const val STRING_ID: String = "String"
+        val STRING: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(STRING_ID, DefaultLanguageHighlighterColors.STRING)
+
+        const val CLASSNAME_ID: String = "Class reference"
+        val CLASSNAME: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(CLASSNAME_ID, DefaultLanguageHighlighterColors.CLASS_NAME)
+
+        const val PHPSTAN_IDENTIFIER_ID: String = "PHPStan identifier"
+        val PHPSTAN_IDENTIFIER: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(PHPSTAN_IDENTIFIER_ID, DefaultLanguageHighlighterColors.METADATA)
 
         const val VARIABLE_ID: String = "Variable"
         val VARIABLE: TextAttributesKey =
@@ -66,7 +82,11 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
             _NeonTypes.T_ASSIGNMENT
         )
         val sNUMBERS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_NUMBER)
+        val sDATETIMES: TokenSet = TokenSet.create(NeonTokenTypes.NEON_DATETIME)
         val sKEYWORDS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_KEYWORD)
+        val sSTRINGS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_STRING, _NeonTypes.T_STRING)
+        val sCLASSNAMES: TokenSet = TokenSet.create(NeonTokenTypes.NEON_CLASSNAME, NeonTokenTypes.NEON_FILEPATH)
+        val sSERVICE_REFS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_SERVICE_REF)
         val sVARIABLES: TokenSet = TokenSet.create(NeonTokenTypes.NEON_VARIABLE)
 
 
@@ -82,7 +102,11 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
             fillMap(ATTRIBUTES, sIDENTIFIERS, IDENTIFIER)
             fillMap(ATTRIBUTES, sINTERPUNCTION, INTERPUNCTION)
             fillMap(ATTRIBUTES, sNUMBERS, NUMBER)
+            fillMap(ATTRIBUTES, sDATETIMES, DATETIME)
             fillMap(ATTRIBUTES, sKEYWORDS, KEYWORD)
+            fillMap(ATTRIBUTES, sSTRINGS, STRING)
+            fillMap(ATTRIBUTES, sCLASSNAMES, CLASSNAME)
+            fillMap(ATTRIBUTES, sSERVICE_REFS, PHPSTAN_IDENTIFIER) // same metadata color
             fillMap(ATTRIBUTES, sVARIABLES, VARIABLE)
         }
     }

@@ -7,97 +7,242 @@ import junit.framework.TestCase
 import org.junit.Test
 
 class NeonHighlightingLexerTest : UsefulTestCase() {
+
+    private fun createLexer(text: String): Lexer {
+        val l = NeonHighlightingLexer(NeonLexer())
+        l.start(text)
+        return l
+    }
+
+    private fun assertToken(l: Lexer, type: com.intellij.psi.tree.IElementType?, text: String) {
+        assertEquals(type, l.tokenType)
+        TestCase.assertEquals(text, l.tokenText)
+        l.advance()
+    }
+
+    private fun skipTo(l: Lexer, text: String) {
+        while (l.tokenType != null && l.tokenText != text) l.advance()
+    }
+
+    // === Key detection ===
+
     @Test
     fun testKeys() {
-        val l: Lexer = NeonHighlightingLexer(NeonLexer())
-        l.start("key: val")
-
-        assertEquals(NeonTokenTypes.NEON_KEY, l.tokenType) // this is important
-        TestCase.assertEquals(0, l.tokenStart)
-        TestCase.assertEquals(3, l.tokenEnd)
-        TestCase.assertEquals("key", l.tokenText)
-        l.advance()
-
-        assertEquals(_NeonTypes.T_COLON, l.tokenType)
-        TestCase.assertEquals(3, l.tokenStart)
-        TestCase.assertEquals(4, l.tokenEnd)
-        TestCase.assertEquals(":", l.tokenText)
-        l.advance()
-
-        assertEquals(TokenType.WHITE_SPACE, l.tokenType)
-        TestCase.assertEquals(4, l.tokenStart)
-        TestCase.assertEquals(5, l.tokenEnd)
-        TestCase.assertEquals(" ", l.tokenText)
-        l.advance()
-
-        assertEquals(_NeonTypes.T_LITERAL, l.tokenType)
-        TestCase.assertEquals(5, l.tokenStart)
-        TestCase.assertEquals(8, l.tokenEnd)
-        TestCase.assertEquals("val", l.tokenText)
-        l.advance()
-
-        assertEquals(null, l.tokenType)
+        val l = createLexer("key: val")
+        assertToken(l, NeonTokenTypes.NEON_KEY, "key")
+        assertToken(l, _NeonTypes.T_COLON, ":")
+        assertToken(l, TokenType.WHITE_SPACE, " ")
+        assertToken(l, NeonTokenTypes.NEON_STRING, "val")
+        assertToken(l, null, "")
     }
 
     @Test
+    fun testKeyWithEquals() {
+        val l = createLexer("key= val")
+        assertToken(l, NeonTokenTypes.NEON_KEY, "key")
+    }
+
+    // === Keywords (true/false/null/yes/no/on/off) ===
+
+    @Test
     fun testKeywords() {
-        val l: Lexer = NeonHighlightingLexer(NeonLexer())
-        l.start("[true,off,TruE,\"true\"]")
+        val l = createLexer("[true,off,TruE,\"true\"]")
+        assertToken(l, _NeonTypes.T_LBRACE_SQUARE, "[")
+        assertToken(l, NeonTokenTypes.NEON_KEYWORD, "true")
+        assertToken(l, _NeonTypes.T_ITEM_DELIMITER, ",")
+        assertToken(l, NeonTokenTypes.NEON_KEYWORD, "off")
+        assertToken(l, _NeonTypes.T_ITEM_DELIMITER, ",")
+        assertToken(l, NeonTokenTypes.NEON_STRING, "TruE") // not a keyword — wrong case
+        assertToken(l, _NeonTypes.T_ITEM_DELIMITER, ",")
+        assertToken(l, NeonTokenTypes.NEON_STRING, "\"true\"") // quoted string, not keyword
+        assertToken(l, _NeonTypes.T_RBRACE_SQUARE, "]")
+        assertToken(l, null, "")
+    }
 
-        assertEquals(_NeonTypes.T_LBRACE_SQUARE, l.tokenType)
-        TestCase.assertEquals(0, l.tokenStart)
-        TestCase.assertEquals(1, l.tokenEnd)
-        TestCase.assertEquals("[", l.tokenText)
-        l.advance()
+    @Test
+    fun testAllKeywordVariants() {
+        for (kw in listOf("true", "True", "TRUE", "false", "False", "FALSE",
+            "yes", "Yes", "YES", "no", "No", "NO",
+            "on", "On", "ON", "off", "Off", "OFF",
+            "null", "Null", "NULL")) {
+            val l = createLexer("[$kw]")
+            l.advance() // skip [
+            assertEquals("$kw should be NEON_KEYWORD", NeonTokenTypes.NEON_KEYWORD, l.tokenType)
+        }
+    }
 
-        assertEquals(NeonTokenTypes.NEON_KEYWORD, l.tokenType)
-        TestCase.assertEquals(1, l.tokenStart)
-        TestCase.assertEquals(5, l.tokenEnd)
-        TestCase.assertEquals("true", l.tokenText)
-        l.advance()
+    // === Numbers ===
 
-        assertEquals(_NeonTypes.T_ITEM_DELIMITER, l.tokenType)
-        TestCase.assertEquals(5, l.tokenStart)
-        TestCase.assertEquals(6, l.tokenEnd)
-        TestCase.assertEquals(",", l.tokenText)
-        l.advance()
+    @Test
+    fun testNumbers() {
+        for ((input, desc) in listOf(
+            "42" to "integer",
+            "-1" to "negative",
+            "3.14" to "float",
+            "0" to "zero",
+            "-0.5" to "negative float",
+            "1.5e3" to "scientific",
+            "1.5E-3" to "scientific negative",
+            "0xff" to "hex",
+            "0xFF" to "hex upper",
+            "0o777" to "octal",
+            "0b1010" to "binary",
+        )) {
+            val l = createLexer("[$input]")
+            l.advance() // skip [
+            assertEquals("$input ($desc) should be NEON_NUMBER", NeonTokenTypes.NEON_NUMBER, l.tokenType)
+        }
+    }
 
-        assertEquals(NeonTokenTypes.NEON_KEYWORD, l.tokenType)
-        TestCase.assertEquals(6, l.tokenStart)
-        TestCase.assertEquals(9, l.tokenEnd)
-        TestCase.assertEquals("off", l.tokenText)
-        l.advance()
+    @Test
+    fun testNotNumbers() {
+        for ((input, desc) in listOf(
+            "42px" to "number with suffix",
+            "-1e" to "incomplete scientific",
+            "1e+-1" to "invalid scientific",
+            "--1" to "double minus",
+        )) {
+            val l = createLexer("[$input]")
+            l.advance() // skip [
+            assertFalse("$input ($desc) should NOT be NEON_NUMBER",
+                l.tokenType == NeonTokenTypes.NEON_NUMBER)
+        }
+    }
 
-        assertEquals(_NeonTypes.T_ITEM_DELIMITER, l.tokenType)
-        TestCase.assertEquals(9, l.tokenStart)
-        TestCase.assertEquals(10, l.tokenEnd)
-        TestCase.assertEquals(",", l.tokenText)
-        l.advance()
+    // === Datetime ===
 
-        assertEquals(_NeonTypes.T_LITERAL, l.tokenType)
-        TestCase.assertEquals(10, l.tokenStart)
-        TestCase.assertEquals(14, l.tokenEnd)
-        TestCase.assertEquals("TruE", l.tokenText)
-        l.advance()
+    @Test
+    fun testDatetime() {
+        for ((input, desc) in listOf(
+            "2025-10-20" to "date only",
+            "2025-1-5" to "short date",
+            "2025-10-20T11:44:55" to "ISO datetime",
+        )) {
+            val l = createLexer("[$input]")
+            l.advance() // skip [
+            assertEquals("$input ($desc) should be NEON_DATETIME", NeonTokenTypes.NEON_DATETIME, l.tokenType)
+        }
+    }
 
-        assertEquals(_NeonTypes.T_ITEM_DELIMITER, l.tokenType)
-        TestCase.assertEquals(14, l.tokenStart)
-        TestCase.assertEquals(15, l.tokenEnd)
-        TestCase.assertEquals(",", l.tokenText)
-        l.advance()
+    // === Strings ===
 
-        assertEquals(_NeonTypes.T_STRING, l.tokenType)
-        TestCase.assertEquals(15, l.tokenStart)
-        TestCase.assertEquals(21, l.tokenEnd)
-        TestCase.assertEquals("\"true\"", l.tokenText)
-        l.advance()
+    @Test
+    fun testUnquotedStrings() {
+        val l = createLexer("[hello, mariadb-11.8.2, Europe/Prague]")
+        l.advance() // skip [
+        assertToken(l, NeonTokenTypes.NEON_STRING, "hello")
+        assertToken(l, _NeonTypes.T_ITEM_DELIMITER, ",")
+        l.advance() // skip space
+        assertToken(l, NeonTokenTypes.NEON_STRING, "mariadb-11.8.2")
+    }
 
-        assertEquals(_NeonTypes.T_RBRACE_SQUARE, l.tokenType)
-        TestCase.assertEquals(21, l.tokenStart)
-        TestCase.assertEquals(22, l.tokenEnd)
-        TestCase.assertEquals("]", l.tokenText)
-        l.advance()
+    @Test
+    fun testQuotedStrings() {
+        val l = createLexer("a: 'quoted'")
+        skipTo(l, "'quoted'")
+        assertToken(l, NeonTokenTypes.NEON_STRING, "'quoted'")
+    }
 
-        assertEquals(null, l.tokenType)
+    // === PHP class names ===
+
+    @Test
+    fun testClassNames() {
+        val l = createLexer("[App\\Model\\Foo]")
+        l.advance() // skip [
+        assertToken(l, NeonTokenTypes.NEON_CLASSNAME, "App\\Model\\Foo")
+    }
+
+    // === Service references ===
+
+    @Test
+    fun testServiceRef() {
+        val l = createLexer("[@routerFactory]")
+        l.advance() // skip [
+        assertToken(l, NeonTokenTypes.NEON_SERVICE_REF, "@routerFactory")
+    }
+
+    @Test
+    fun testServiceRefWithNamespace() {
+        val l = createLexer("[@App\\Model\\Handler]")
+        l.advance() // skip [
+        assertToken(l, NeonTokenTypes.NEON_SERVICE_REF, "@App\\Model\\Handler")
+    }
+
+    @Test
+    fun testServiceRefWithMethod() {
+        val l = createLexer("[@factory::create]")
+        l.advance() // skip [
+        assertToken(l, NeonTokenTypes.NEON_SERVICE_REF, "@factory::create")
+    }
+
+    // === File paths ===
+
+    @Test
+    fun testFilePath() {
+        val l = createLexer("[app/Model/Foo.php]")
+        l.advance() // skip [
+        assertToken(l, NeonTokenTypes.NEON_FILEPATH, "app/Model/Foo.php")
+    }
+
+    @Test
+    fun testNotFilePath() {
+        // No slash — not a file path
+        val l = createLexer("[Foo.php]")
+        l.advance() // skip [
+        assertToken(l, NeonTokenTypes.NEON_STRING, "Foo.php")
+    }
+
+    // === isNumeric unit tests ===
+
+    @Test
+    fun testIsNumeric() {
+        assertTrue(NeonHighlightingLexer.isNumeric("0"))
+        assertTrue(NeonHighlightingLexer.isNumeric("42"))
+        assertTrue(NeonHighlightingLexer.isNumeric("-1"))
+        assertTrue(NeonHighlightingLexer.isNumeric("3.14"))
+        assertTrue(NeonHighlightingLexer.isNumeric("1.5e3"))
+        assertTrue(NeonHighlightingLexer.isNumeric("1.5E-3"))
+        assertTrue(NeonHighlightingLexer.isNumeric("0xff"))
+        assertTrue(NeonHighlightingLexer.isNumeric("0o777"))
+        assertTrue(NeonHighlightingLexer.isNumeric("0b1010"))
+
+        assertFalse(NeonHighlightingLexer.isNumeric("hello"))
+        assertFalse(NeonHighlightingLexer.isNumeric("42px"))
+        assertFalse(NeonHighlightingLexer.isNumeric(""))
+        assertFalse(NeonHighlightingLexer.isNumeric("-1e"))
+        assertFalse(NeonHighlightingLexer.isNumeric("1e+-1"))
+    }
+
+    // === isFilePath unit tests ===
+
+    @Test
+    fun testIsFilePath() {
+        assertTrue(NeonHighlightingLexer.isFilePath("app/Model/Foo.php"))
+        assertTrue(NeonHighlightingLexer.isFilePath("src/test.neon"))
+        assertTrue(NeonHighlightingLexer.isFilePath("tests/Unit/FooTest.php"))
+
+        assertFalse(NeonHighlightingLexer.isFilePath("Foo.php")) // no slash
+        assertFalse(NeonHighlightingLexer.isFilePath("app/Model")) // no extension
+        assertFalse(NeonHighlightingLexer.isFilePath("hello")) // plain string
+        assertFalse(NeonHighlightingLexer.isFilePath("Europe/Prague")) // not .php or .neon
+        assertFalse(NeonHighlightingLexer.isFilePath("date.timezone")) // dot but no slash
+    }
+
+    // === isDateTime unit tests ===
+
+    @Test
+    fun testIsDateTime() {
+        assertTrue(NeonHighlightingLexer.isDateTime("2025-10-20"))
+        assertTrue(NeonHighlightingLexer.isDateTime("2025-1-5"))
+        assertTrue(NeonHighlightingLexer.isDateTime("2025-10-20T11:44:55"))
+        assertTrue(NeonHighlightingLexer.isDateTime("2025-10-20 11:44:55"))
+        assertTrue(NeonHighlightingLexer.isDateTime("2025-10-20 11:44:55.1234"))
+        assertTrue(NeonHighlightingLexer.isDateTime("2025-10-20 11:44:55+0200"))
+        assertTrue(NeonHighlightingLexer.isDateTime("2025-10-20 11:44:55Z"))
+
+        assertFalse(NeonHighlightingLexer.isDateTime("hello"))
+        assertFalse(NeonHighlightingLexer.isDateTime("2025"))
+        assertFalse(NeonHighlightingLexer.isDateTime("2025-10"))
+        assertFalse(NeonHighlightingLexer.isDateTime("10-20-2025"))
     }
 }

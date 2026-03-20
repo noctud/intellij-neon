@@ -8,7 +8,10 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
+import dev.noctud.neon.ext.isPhpStan
+import com.jetbrains.php.PhpIndex
 import dev.noctud.neon.completion.ParameterCompletionProvider
+import dev.noctud.neon.completion.PhpStanIdentifierCompletionProvider
 import dev.noctud.neon.editor.NeonSyntaxHighlighter
 import dev.noctud.neon.file.NeonFileType
 import dev.noctud.neon.lexer._NeonTypes
@@ -22,6 +25,9 @@ class NeonAnnotator : Annotator {
 
         if (type === _NeonTypes.T_LITERAL) {
             highlightVariables(element, holder)
+            highlightPhpStanIdentifier(element, holder)
+            checkUnresolvedServiceRef(element, holder)
+            checkUnresolvedClass(element, holder)
         } else if (element is PsiErrorElement) {
             val prevSibling = element.prevSibling ?: return
             if (prevSibling.node.elementType === _NeonTypes.T_INDENT) {
@@ -92,10 +98,8 @@ class NeonAnnotator : Annotator {
 
     private fun collectKnownVariables(element: PsiElement): Set<String> {
         val result = mutableSetOf<String>()
-        val fileName = element.containingFile?.name ?: ""
-        val isPhpStan = fileName.contains("phpstan", ignoreCase = true) && fileName.endsWith(".neon")
-
-        if (isPhpStan) {
+        val file = element.containingFile ?: return emptySet()
+        if (file.isPhpStan()) {
             result.addAll(ParameterCompletionProvider.PHPSTAN_DEFAULTS)
             collectParametersFromFile(element.containingFile as? NeonFile, result)
         } else {
@@ -105,7 +109,7 @@ class NeonAnnotator : Annotator {
             val scope = GlobalSearchScope.projectScope(project)
             val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
             for (vf in neonFiles) {
-                if (vf.name.contains("phpstan", ignoreCase = true)) continue
+                if (vf.isPhpStan()) continue
                 val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
                 collectParametersFromFile(psiFile, result)
             }
@@ -137,6 +141,133 @@ class NeonAnnotator : Annotator {
                 val value = parent.value
                 if (value is NeonArray) {
                     collectParameters(value, fullKey, result)
+                }
+            }
+        }
+    }
+
+    /**
+     * Highlight PHPStan error identifier values (e.g., method.notFound, assign.propertyType)
+     * at path: parameters → ignoreErrors → <bullet> → identifier:
+     */
+    private fun highlightPhpStanIdentifier(element: PsiElement, holder: AnnotationHolder) {
+        val file = element.containingFile ?: return
+        if (!file.isPhpStan()) return
+
+        // Check if this literal is the VALUE of an "identifier" key
+        // PSI path: T_LITERAL → SCALAR → VALUE → NAMED_KEY_VAL_PAIR
+        // The VALUE node distinguishes it from the KEY position
+        val scalar = element.parent ?: return
+        if (scalar.node.elementType !== _NeonTypes.SCALAR) return
+        val value = scalar.parent ?: return
+        if (value.node.elementType !== _NeonTypes.VALUE) return
+        val namedKvp = value.parent ?: return
+        if (namedKvp !is NeonKeyValPair) return
+        if (namedKvp.keyText != "identifier") return
+
+        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+            .range(element)
+            .textAttributes(NeonSyntaxHighlighter.PHPSTAN_IDENTIFIER)
+            .create()
+
+        // Warn if the identifier doesn't match any known PHPStan identifier
+        val text = element.text
+        if (!PhpStanIdentifierCompletionProvider.KNOWN_IDENTIFIERS.contains(text)) {
+            val prefix = text.substringBefore(".")
+            if (!PhpStanIdentifierCompletionProvider.PHPSTAN_IDENTIFIER_PREFIXES.contains(prefix)) {
+                // Completely unknown prefix — definitely wrong
+                holder.newAnnotation(HighlightSeverity.WARNING, "Unknown PHPStan error identifier '$text'")
+                    .range(element)
+                    .create()
+            } else {
+                // Known prefix but unknown specific identifier — might be valid
+                holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "Unrecognized PHPStan error identifier '$text'")
+                    .range(element)
+                    .create()
+            }
+        }
+    }
+
+    /**
+     * Check @serviceRef references — warn if the service is not defined
+     * in any services: section and is not a valid PHP class.
+     */
+    private fun checkUnresolvedServiceRef(element: PsiElement, holder: AnnotationHolder) {
+        val text = element.text
+        if (!text.startsWith("@") || text.length < 2) return
+        // @Class\With\Namespace is handled by checkUnresolvedClass — skip those here
+        if (text.contains("\\")) return
+
+        // Strip @ and ::method suffix
+        val serviceName = text.substring(1).substringBefore("::")
+
+        // Check if the service is defined in any neon file's services: section
+        val knownServices = collectKnownServices(element)
+        if (!knownServices.contains(serviceName)) {
+            holder.newAnnotation(HighlightSeverity.WARNING, "Service '@$serviceName' not found")
+                .range(element)
+                .create()
+        }
+    }
+
+    private fun collectKnownServices(element: PsiElement): Set<String> {
+        val result = mutableSetOf<String>()
+        val project = element.project
+        val scope = GlobalSearchScope.projectScope(project)
+        val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
+        for (vf in neonFiles) {
+            if (vf.isPhpStan()) continue
+            val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
+            val rootValue = psiFile.value
+            if (rootValue is NeonArray) {
+                val map = rootValue.map ?: continue
+                val servicesValue = map["services"]
+                if (servicesValue is NeonArray) {
+                    val keys = servicesValue.keys ?: continue
+                    for (key in keys.filterNotNull()) {
+                        val keyText = key.keyText ?: continue
+                        if (keyText != "-") result.add(keyText)
+                    }
+                }
+            }
+        }
+        return result
+    }
+
+    /**
+     * Check if a literal containing \ (PHP class FQN) resolves to an actual class.
+     * Warns if the class cannot be found.
+     */
+    private fun checkUnresolvedClass(element: PsiElement, holder: AnnotationHolder) {
+        val text = element.text
+        if (!text.contains("\\")) return
+
+        // Strip @ prefix for service references
+        val fqn = if (text.startsWith("@")) text.substring(1) else text
+
+        // Skip if it looks like a path or contains %variables%
+        if (fqn.contains("/") || fqn.contains("%")) return
+
+        // Skip wildcards like *Data, *DTO
+        if (fqn.contains("*")) return
+
+        val phpIndex = PhpIndex.getInstance(element.project)
+        var classes = phpIndex.getAnyByFQN(fqn)
+        if (classes.isEmpty() && !fqn.startsWith("\\")) {
+            classes = phpIndex.getAnyByFQN("\\$fqn")
+        }
+
+        if (classes.isEmpty()) {
+            // Check if it's a namespace or a prefix of a namespace
+            val fqnWithSlash = "\\" + fqn.trimStart('\\')
+            val namespaces = phpIndex.getNamespacesByName(fqnWithSlash)
+            if (namespaces.isEmpty()) {
+                // Also check if any namespace starts with this prefix
+                val hasChildNamespaces = phpIndex.getChildNamespacesByParentName(fqnWithSlash + "\\").isNotEmpty()
+                if (!hasChildNamespaces) {
+                    holder.newAnnotation(HighlightSeverity.WARNING, "Class or namespace '$fqn' not found")
+                        .range(element)
+                        .create()
                 }
             }
         }

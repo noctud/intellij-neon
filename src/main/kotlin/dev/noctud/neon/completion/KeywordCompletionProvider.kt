@@ -216,7 +216,7 @@ class KeywordCompletionProvider : CompletionProvider<CompletionParameters?>() {
         if (curr.node.elementType === _NeonTypes.T_COMMENT) {
             return
         }
-        if (curr.text.startsWith("%")) return
+        if (curr.text.startsWith("%") || curr.text.startsWith("@")) return
         var hasSomething = false
 
 

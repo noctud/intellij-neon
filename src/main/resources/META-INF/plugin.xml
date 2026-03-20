@@ -33,6 +33,10 @@
 
         <gotoDeclarationHandler implementation="dev.noctud.neon.reference.GoToClassHandler"/>
         <gotoDeclarationHandler implementation="dev.noctud.neon.reference.GoToParameterHandler"/>
+        <gotoDeclarationHandler implementation="dev.noctud.neon.reference.GoToFileHandler"/>
+        <gotoDeclarationHandler implementation="dev.noctud.neon.reference.GoToServiceHandler"/>
         <annotator implementationClass="dev.noctud.neon.annotator.NeonAnnotator" language="neon"/>
+
+        <referencesSearch implementation="dev.noctud.neon.reference.NeonPhpClassSearcher"/>
     </extensions>
 </idea-plugin>

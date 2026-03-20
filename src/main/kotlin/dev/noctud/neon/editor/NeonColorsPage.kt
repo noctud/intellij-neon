@@ -80,7 +80,10 @@ class NeonColorsPage : ColorSettingsPage {
             AttributesDescriptor("colors.identifier", NeonSyntaxHighlighter.IDENTIFIER),
             AttributesDescriptor("colors.interpunction", NeonSyntaxHighlighter.INTERPUNCTION),
             AttributesDescriptor("colors.number", NeonSyntaxHighlighter.NUMBER),
+            AttributesDescriptor("colors.datetime", NeonSyntaxHighlighter.DATETIME),
             AttributesDescriptor("colors.keyword", NeonSyntaxHighlighter.KEYWORD),
+            AttributesDescriptor("colors.string", NeonSyntaxHighlighter.STRING),
+            AttributesDescriptor("colors.class.reference", NeonSyntaxHighlighter.CLASSNAME),
             AttributesDescriptor("colors.variable", NeonSyntaxHighlighter.VARIABLE),
         )
     }

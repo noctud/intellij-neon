@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
+import dev.noctud.neon.ext.isPhpStan
 import dev.noctud.neon.file.NeonFileType
 import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonArray
@@ -26,8 +27,8 @@ class GoToParameterHandler : GotoDeclarationHandler {
         val localOffset = offset - element.textRange.startOffset
         val varName = findVariableAtOffset(text, localOffset) ?: return null
 
-        val fileName = element.containingFile?.name ?: ""
-        val isPhpStan = fileName.contains("phpstan", ignoreCase = true) && fileName.endsWith(".neon")
+        val file = element.containingFile ?: return null
+        val isPhpStan = file.isPhpStan()
 
         val targets = mutableListOf<PsiElement>()
 
@@ -40,7 +41,7 @@ class GoToParameterHandler : GotoDeclarationHandler {
             val scope = GlobalSearchScope.projectScope(project)
             val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
             for (vf in neonFiles) {
-                if (vf.name.contains("phpstan", ignoreCase = true)) continue
+                if (vf.isPhpStan()) continue
                 val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
                 findParameterDefinition(psiFile, varName)?.let { targets.add(it) }
             }

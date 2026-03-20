@@ -14,4 +14,9 @@ object NeonTokenTypes {
     @JvmField val NEON_KEY: IElementType = NeonTokenType("key")
     @JvmField val NEON_NUMBER: IElementType = NeonTokenType("number")
     @JvmField val NEON_VARIABLE: IElementType = NeonTokenType("variable")
+    @JvmField val NEON_STRING: IElementType = NeonTokenType("neon_string")
+    @JvmField val NEON_CLASSNAME: IElementType = NeonTokenType("classname")
+    @JvmField val NEON_DATETIME: IElementType = NeonTokenType("datetime")
+    @JvmField val NEON_FILEPATH: IElementType = NeonTokenType("filepath")
+    @JvmField val NEON_SERVICE_REF: IElementType = NeonTokenType("service_ref")
 }
