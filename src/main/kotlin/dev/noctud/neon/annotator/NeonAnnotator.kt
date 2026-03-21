@@ -24,12 +24,14 @@ class NeonAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         val type = element.node.elementType
 
-        if (type === _NeonTypes.T_LITERAL) {
+        if (type === _NeonTypes.T_LITERAL || type === _NeonTypes.T_STRING) {
             highlightVariables(element, holder)
-            highlightNamedArgument(element, holder)
-            highlightPhpStanIdentifier(element, holder)
-            checkUnresolvedServiceRef(element, holder)
-            checkUnresolvedClass(element, holder)
+            if (type === _NeonTypes.T_LITERAL) {
+                highlightNamedArgument(element, holder)
+                highlightPhpStanIdentifier(element, holder)
+                checkUnresolvedServiceRef(element, holder)
+                checkUnresolvedClass(element, holder)
+            }
         } else if (element is PsiErrorElement) {
             val prevSibling = element.prevSibling ?: return
             if (prevSibling.node.elementType === _NeonTypes.T_INDENT) {
@@ -278,8 +280,9 @@ class NeonAnnotator : Annotator {
         val text = element.text
         if (!text.contains("\\")) return
 
-        // Strip @ prefix for service references
-        val fqn = if (text.startsWith("@")) text.substring(1) else text
+        // Strip @ prefix for service references and ::method suffix
+        var fqn = if (text.startsWith("@")) text.substring(1) else text
+        fqn = fqn.substringBefore("::")
 
         // Skip if it looks like a path or contains %variables%
         if (fqn.contains("/") || fqn.contains("%")) return

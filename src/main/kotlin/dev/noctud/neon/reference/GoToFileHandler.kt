@@ -45,7 +45,7 @@ class GoToFileHandler : GotoDeclarationHandler {
     override fun getActionText(context: DataContext): String? = null
 
     companion object {
-        private val FILE_PATH = Regex(".+[/\\\\].+\\.(?:php|neon)")
+        private val FILE_PATH = Regex(".+\\.(?:php|neon)")
         private val LEADING_VARIABLE = Regex("^%[a-zA-Z_][a-zA-Z0-9._-]*%[/\\\\]?")
     }
 }

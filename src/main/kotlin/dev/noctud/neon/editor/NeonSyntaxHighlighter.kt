@@ -69,7 +69,7 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
 
         const val VARIABLE_ID: String = "Variable"
         val VARIABLE: TextAttributesKey =
-            TextAttributesKey.createTextAttributesKey(VARIABLE_ID, DefaultLanguageHighlighterColors.INSTANCE_FIELD)
+            TextAttributesKey.createTextAttributesKey(VARIABLE_ID, TextAttributesKey.createTextAttributesKey("PHP_VAR"))
 
         // Groups of IElementType's
         val sBAD: TokenSet = TokenSet.create(TokenType.BAD_CHARACTER, _NeonTypes.T_UNKNOWN)

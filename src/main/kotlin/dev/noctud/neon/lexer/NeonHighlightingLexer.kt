@@ -109,7 +109,7 @@ class NeonHighlightingLexer(baseLexer: Lexer) : LookAheadLexer(baseLexer, 1) {
             return DATETIME.matches(text)
         }
 
-        private val FILE_PATH = Regex(".+[/\\\\].+\\.(?:php|neon)$")
+        private val FILE_PATH = Regex(".+\\.(?:php|neon)$")
 
         fun isFilePath(text: String): Boolean {
             return FILE_PATH.matches(text)

@@ -185,11 +185,11 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
     }
 
     @Test
-    fun testNotFilePath() {
-        // No slash — not a file path
-        val l = createLexer("[Foo.php]")
+    fun testFilePathNoSlash() {
+        // No slash but ends with .neon — still a file path
+        val l = createLexer("[services.neon]")
         l.advance() // skip [
-        assertToken(l, NeonTokenTypes.NEON_STRING, "Foo.php")
+        assertToken(l, NeonTokenTypes.NEON_FILEPATH, "services.neon")
     }
 
     // === isNumeric unit tests ===
@@ -231,12 +231,13 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         assertTrue(NeonHighlightingLexer.isFilePath("app/Model/Foo.php"))
         assertTrue(NeonHighlightingLexer.isFilePath("src/test.neon"))
         assertTrue(NeonHighlightingLexer.isFilePath("tests/Unit/FooTest.php"))
+        assertTrue(NeonHighlightingLexer.isFilePath("services.neon"))
+        assertTrue(NeonHighlightingLexer.isFilePath("Foo.php"))
 
-        assertFalse(NeonHighlightingLexer.isFilePath("Foo.php")) // no slash
         assertFalse(NeonHighlightingLexer.isFilePath("app/Model")) // no extension
         assertFalse(NeonHighlightingLexer.isFilePath("hello")) // plain string
         assertFalse(NeonHighlightingLexer.isFilePath("Europe/Prague")) // not .php or .neon
-        assertFalse(NeonHighlightingLexer.isFilePath("date.timezone")) // dot but no slash
+        assertFalse(NeonHighlightingLexer.isFilePath("date.timezone")) // dot but wrong extension
     }
 
     // === isDateTime unit tests ===
