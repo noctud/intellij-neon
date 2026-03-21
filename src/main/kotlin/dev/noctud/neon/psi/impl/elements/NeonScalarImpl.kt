@@ -27,7 +27,8 @@ class NeonScalarImpl(astNode: ASTNode) : NeonPsiElementImpl(astNode), NeonScalar
         get() {
             val text = valueText
             val stripped = if (text.startsWith("@")) text.substring(1) else text
-            return if (stripped.contains("\\")) stripped else null
+            val withoutMethod = stripped.substringBefore("::")
+            return if (withoutMethod.contains("\\")) withoutMethod else null
         }
 
     override fun getName(): String {
