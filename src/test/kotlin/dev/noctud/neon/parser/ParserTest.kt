@@ -124,4 +124,5 @@ open class ParserTest : ParsingTestCase("", "neon", NeonParserDefinition()) {
     @Test fun testNestedParameters() = doParserTest(checkResult = true, suppressErrors = false)
     @Test fun testNamedArguments() = doParserTest(checkResult = true, suppressErrors = false)
     @Test fun testVariablesInStrings() = doParserTest(checkResult = true, suppressErrors = false)
+    @Test fun testEscapedPercent() = doParserTest(checkResult = true, suppressErrors = false)
 }

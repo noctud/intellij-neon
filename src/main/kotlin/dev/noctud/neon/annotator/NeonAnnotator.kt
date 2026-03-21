@@ -68,9 +68,14 @@ class NeonAnnotator : Annotator {
         var knownVars: Set<String>? = null
         var i = 0
         while (i < text.length) {
+            // Skip escaped %% (literal percent in Neon)
+            if (text[i] == '%' && i + 1 < text.length && text[i + 1] == '%') {
+                i += 2
+                continue
+            }
             if (text[i] == '%' && i + 1 < text.length && isVarStartChar(text[i + 1])) {
                 val end = text.indexOf('%', i + 1)
-                if (end > i + 1) {
+                if (end > i + 1 && !(end + 1 < text.length && text[end + 1] == '%')) {
                     val varName = text.substring(i + 1, end)
                     if (VARIABLE_NAME.matches(varName)) {
                         val range = TextRange(baseOffset + i, baseOffset + end + 1)
