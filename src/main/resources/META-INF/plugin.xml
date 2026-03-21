@@ -38,5 +38,6 @@
         <annotator implementationClass="dev.noctud.neon.annotator.NeonAnnotator" language="neon"/>
 
         <referencesSearch implementation="dev.noctud.neon.reference.NeonPhpClassSearcher"/>
+        <implicitUsageProvider implementation="dev.noctud.neon.reference.NeonImplicitUsageProvider"/>
     </extensions>
 </idea-plugin>
