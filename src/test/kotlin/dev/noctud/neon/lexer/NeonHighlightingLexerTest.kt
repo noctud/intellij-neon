@@ -3,6 +3,7 @@ package dev.noctud.neon.lexer
 import com.intellij.lexer.Lexer
 import com.intellij.psi.TokenType
 import com.intellij.testFramework.UsefulTestCase
+import dev.noctud.neon.annotator.NeonAnnotator
 import junit.framework.TestCase
 import org.junit.Test
 
@@ -222,6 +223,28 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         assertToken(l, NeonTokenTypes.NEON_STRING, "Foo") // class name without \ is string
         assertToken(l, _NeonTypes.T_LPAREN, "(")
         assertToken(l, NeonTokenTypes.NEON_KEY, "key") // highlighted as key by lexer
+    }
+
+    // === Simple class name detection (from NeonAnnotator) ===
+
+    @Test
+    fun testLooksLikeSimpleClassName() {
+        // Valid PHP class names
+        assertTrue(NeonAnnotator.looksLikeSimpleClassName("Throwable"))
+        assertTrue(NeonAnnotator.looksLikeSimpleClassName("Exception"))
+        assertTrue(NeonAnnotator.looksLikeSimpleClassName("DateTime"))
+        assertTrue(NeonAnnotator.looksLikeSimpleClassName("SplFixedArray"))
+
+        // Not class names
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("throwable")) // lowercase
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("T")) // single char
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("App\\Model")) // FQN
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("@Service")) // service ref
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("%appDir%")) // variable
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("app/test.php")) // path
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("date.timezone")) // dotted
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("*Data")) // wildcard
+        assertFalse(NeonAnnotator.looksLikeSimpleClassName("")) // empty
     }
 
     // === isFilePath unit tests ===

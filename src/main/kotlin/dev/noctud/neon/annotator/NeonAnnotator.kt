@@ -29,8 +29,11 @@ class NeonAnnotator : Annotator {
             if (type === _NeonTypes.T_LITERAL) {
                 highlightNamedArgument(element, holder)
                 highlightPhpStanIdentifier(element, holder)
+                highlightFilePath(element, holder)
                 checkUnresolvedServiceRef(element, holder)
                 checkUnresolvedClass(element, holder)
+                highlightSimpleClassName(element, holder)
+                highlightFqnClass(element, holder)
             }
         } else if (element is PsiErrorElement) {
             val prevSibling = element.prevSibling ?: return
@@ -278,6 +281,53 @@ class NeonAnnotator : Annotator {
     }
 
     /**
+     * Highlight simple class names without namespace (e.g., Throwable, Exception, DateTime)
+     * by checking PhpIndex. Only matches PascalCase names to avoid false positives.
+     */
+    private fun highlightSimpleClassName(element: PsiElement, holder: AnnotationHolder) {
+        val text = element.text
+        if (!looksLikeSimpleClassName(text)) return
+
+        val phpIndex = PhpIndex.getInstance(element.project)
+        val found = phpIndex.getClassesByName(text).isNotEmpty()
+            || phpIndex.getInterfacesByName(text).isNotEmpty()
+            || phpIndex.getTraitsByName(text).isNotEmpty()
+        if (found) {
+            holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+                .range(element)
+                .enforcedTextAttributes(NeonSyntaxHighlighter.CLASSNAME.defaultAttributes)
+                .create()
+        }
+    }
+
+    /**
+     * Apply enforced class color to file paths (.php, .neon).
+     */
+    private fun highlightFilePath(element: PsiElement, holder: AnnotationHolder) {
+        val text = element.text
+        if (!text.endsWith(".php") && !text.endsWith(".neon")) return
+        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+            .range(element)
+            .enforcedTextAttributes(NeonSyntaxHighlighter.CLASSNAME.defaultAttributes)
+            .create()
+    }
+
+    /**
+     * Apply enforced class color to FQN classes (with \) so they match the same
+     * color as simple class names detected by highlightSimpleClassName.
+     */
+    private fun highlightFqnClass(element: PsiElement, holder: AnnotationHolder) {
+        val text = element.text
+        if (!text.contains("\\")) return
+        if (text.contains("/") || text.contains("%") || text.contains("*")) return
+
+        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+            .range(element)
+            .enforcedTextAttributes(NeonSyntaxHighlighter.CLASSNAME.defaultAttributes)
+            .create()
+    }
+
+    /**
      * Check if a literal containing \ (PHP class FQN) resolves to an actual class.
      * Warns if the class cannot be found.
      */
@@ -338,5 +388,14 @@ class NeonAnnotator : Annotator {
 
     companion object {
         private val VARIABLE_NAME = Regex("[a-zA-Z_][a-zA-Z0-9._-]*")
+        val SIMPLE_CLASS_NAME = Regex("[A-Z][a-zA-Z0-9_]+")
+
+        /** Check if a literal looks like a simple PHP class name (PascalCase, no special chars) */
+        fun looksLikeSimpleClassName(text: String): Boolean {
+            if (text.contains("\\") || text.contains("@") || text.contains("%") ||
+                text.contains("/") || text.contains(".") || text.contains("*") ||
+                text.isEmpty() || !text[0].isUpperCase()) return false
+            return SIMPLE_CLASS_NAME.matches(text)
+        }
     }
 }

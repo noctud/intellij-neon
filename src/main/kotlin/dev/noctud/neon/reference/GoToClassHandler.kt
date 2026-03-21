@@ -12,15 +12,29 @@ class GoToClassHandler : GotoDeclarationHandler {
         if (element == null || element.parent == null || element.parent !is NeonScalarImpl) {
             return arrayOfNulls(0)
         }
-        val fqn = (element.parent as NeonScalarImpl).classFqn ?: return arrayOfNulls(0)
-
+        val scalar = element.parent as NeonScalarImpl
         val phpIndex = PhpIndex.getInstance(element.project)
-        var classes = phpIndex.getAnyByFQN(fqn)
-        if (classes.isEmpty() && !fqn.startsWith("\\")) {
-            classes = phpIndex.getAnyByFQN("\\$fqn")
+
+        // Try FQN first (contains \)
+        val fqn = scalar.classFqn
+        if (fqn != null) {
+            var classes = phpIndex.getAnyByFQN(fqn)
+            if (classes.isEmpty() && !fqn.startsWith("\\")) {
+                classes = phpIndex.getAnyByFQN("\\$fqn")
+            }
+            if (classes.isNotEmpty()) return classes.toTypedArray()
         }
 
-        return classes.toTypedArray<PsiElement?>()
+        // Try simple class name (PascalCase, no namespace)
+        val text = scalar.valueText
+        if (text.isNotEmpty() && text[0].isUpperCase() && !text.contains("\\") && !text.contains("/")) {
+            val classes = phpIndex.getClassesByName(text) +
+                phpIndex.getInterfacesByName(text) +
+                phpIndex.getTraitsByName(text)
+            if (classes.isNotEmpty()) return classes.toTypedArray()
+        }
+
+        return arrayOfNulls(0)
     }
 
     override fun getActionText(context: DataContext): String? {
