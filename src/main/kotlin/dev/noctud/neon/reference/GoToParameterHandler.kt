@@ -36,6 +36,11 @@ class GoToParameterHandler : GotoDeclarationHandler {
             }
         }
 
+        // Fallback: try vendor/nette/bootstrap/config.stub.neon for Nette defaults
+        if (targets.isEmpty()) {
+            findNetteStubDefinition(element.project, varName)?.let { targets.add(it) }
+        }
+
         // Fallback: try .env files
         if (targets.isEmpty()) {
             findEnvDefinition(element.project, varName)?.let { targets.add(it) }
@@ -61,6 +66,14 @@ class GoToParameterHandler : GotoDeclarationHandler {
             i++
         }
         return null
+    }
+
+    private fun findNetteStubDefinition(project: com.intellij.openapi.project.Project, varName: String): PsiElement? {
+        val basePath = project.basePath ?: return null
+        val stubPath = "$basePath/vendor/nette/bootstrap/config.stub.neon"
+        val vf = LocalFileSystem.getInstance().findFileByPath(stubPath) ?: return null
+        val psiFile = PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: return null
+        return psiFile.findParameterDefinition(varName)
     }
 
     private fun findEnvDefinition(project: com.intellij.openapi.project.Project, varName: String): PsiElement? {
