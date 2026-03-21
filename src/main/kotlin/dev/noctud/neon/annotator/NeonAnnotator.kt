@@ -25,6 +25,7 @@ class NeonAnnotator : Annotator {
 
         if (type === _NeonTypes.T_LITERAL) {
             highlightVariables(element, holder)
+            highlightNamedArgument(element, holder)
             highlightPhpStanIdentifier(element, holder)
             checkUnresolvedServiceRef(element, holder)
             checkUnresolvedClass(element, holder)
@@ -185,6 +186,37 @@ class NeonAnnotator : Annotator {
                     .range(element)
                     .create()
             }
+        }
+    }
+
+    /**
+     * Highlight named arguments inside entity parameters: Foo(name: value)
+     * The "name" key gets PHP-style named argument color.
+     */
+    private fun highlightNamedArgument(element: PsiElement, holder: AnnotationHolder) {
+        // T_LITERAL → SCALAR → ARRAY_KEY → ARRAY_KEY_VALUE_PAIR → ARRAY_VALUE → ENTITY_PARAMETERS
+        // or T_LITERAL → SCALAR → ARRAY_KEY → ARRAY_KEY_VALUE_PAIR → ARRAY_VALUE → INLINE_ARRAY
+        // We need to check that this literal is a key inside () or [] or {}
+        val scalar = element.parent ?: return
+        if (scalar.node.elementType !== _NeonTypes.SCALAR) return
+        val arrayKey = scalar.parent ?: return
+        if (arrayKey.node.elementType !== _NeonTypes.ARRAY_KEY) return
+
+        // Walk up to find if we're inside ENTITY_PARAMETERS or INLINE_ARRAY
+        var parent = arrayKey.parent
+        while (parent != null) {
+            val parentType = parent.node.elementType
+            if (parentType === _NeonTypes.ENTITY_PARAMETERS) {
+                holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+                    .range(element)
+                    .textAttributes(NeonSyntaxHighlighter.NAMED_ARGUMENT)
+                    .create()
+                return
+            }
+            if (parentType === _NeonTypes.ARRAY || parentType === _NeonTypes.INNER_ARRAY) {
+                return // top-level key, not a named argument
+            }
+            parent = parent.parent
         }
     }
 

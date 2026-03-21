@@ -85,6 +85,7 @@ class NeonColorsPage : ColorSettingsPage {
             AttributesDescriptor("colors.string", NeonSyntaxHighlighter.STRING),
             AttributesDescriptor("colors.class.reference", NeonSyntaxHighlighter.CLASSNAME),
             AttributesDescriptor("colors.variable", NeonSyntaxHighlighter.VARIABLE),
+            AttributesDescriptor("colors.named.argument", NeonSyntaxHighlighter.NAMED_ARGUMENT),
         )
     }
 }

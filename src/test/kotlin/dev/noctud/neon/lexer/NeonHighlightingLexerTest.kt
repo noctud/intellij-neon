@@ -213,6 +213,17 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         assertFalse(NeonHighlightingLexer.isNumeric("1e+-1"))
     }
 
+    // === Named arguments in entity params — lexer still shows as KEY, annotator recolors ===
+
+    @Test
+    fun testNamedArgInEntityIsKey() {
+        // In "Foo(key: val)", "key" is followed by ":" so the highlighting lexer marks it as KEY
+        val l = createLexer("Foo(key: val)")
+        assertToken(l, NeonTokenTypes.NEON_STRING, "Foo") // class name without \ is string
+        assertToken(l, _NeonTypes.T_LPAREN, "(")
+        assertToken(l, NeonTokenTypes.NEON_KEY, "key") // highlighted as key by lexer
+    }
+
     // === isFilePath unit tests ===
 
     @Test

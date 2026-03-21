@@ -59,6 +59,10 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
         val CLASSNAME: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(CLASSNAME_ID, DefaultLanguageHighlighterColors.CLASS_NAME)
 
+        const val NAMED_ARGUMENT_ID: String = "Named argument"
+        val NAMED_ARGUMENT: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(NAMED_ARGUMENT_ID, TextAttributesKey.createTextAttributesKey("PHP_NAMED_ARGUMENT"))
+
         const val PHPSTAN_IDENTIFIER_ID: String = "PHPStan identifier"
         val PHPSTAN_IDENTIFIER: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(PHPSTAN_IDENTIFIER_ID, DefaultLanguageHighlighterColors.METADATA)
