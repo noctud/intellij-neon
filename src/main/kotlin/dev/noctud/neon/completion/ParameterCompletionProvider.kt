@@ -11,12 +11,11 @@ import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ProcessingContext
 import dev.noctud.neon.ext.EnvFileParser
+import dev.noctud.neon.ext.collectAllParameters
+import dev.noctud.neon.ext.collectParameters
 import dev.noctud.neon.ext.isPhpStan
-import dev.noctud.neon.file.NeonFileType
 import dev.noctud.neon.lexer._NeonTypes
-import dev.noctud.neon.psi.elements.NeonArray
 import dev.noctud.neon.psi.elements.NeonFile
-import dev.noctud.neon.psi.elements.NeonKeyValPair
 
 /**
  * Provides autocompletion for %variable% parameters in Neon files.
@@ -46,21 +45,11 @@ class ParameterCompletionProvider : CompletionProvider<CompletionParameters>() {
 
         if (isPhpStan) {
             variables.addAll(PHPSTAN_DEFAULTS)
-            collectParametersFromFile(element.containingFile as? NeonFile, variables)
+            (element.containingFile as? NeonFile)?.collectParameters(variables)
         } else {
             variables.addAll(NETTE_DEFAULTS)
-            val project = element.project
-            val scope = GlobalSearchScope.projectScope(project)
-            val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
-
-            for (vf in neonFiles) {
-                if (vf.isPhpStan()) continue
-                val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
-                collectParametersFromFile(psiFile, variables)
-            }
-
-            // Add .env variables
-            envVariables.addAll(EnvFileParser.collectEnvVariables(project) - variables)
+            variables.addAll(element.project.collectAllParameters())
+            envVariables.addAll(EnvFileParser.collectEnvVariables(element.project) - variables)
         }
 
         for (variable in variables) {
@@ -81,37 +70,6 @@ class ParameterCompletionProvider : CompletionProvider<CompletionParameters>() {
                     .withTypeText(".env")
                     .withInsertHandler(VariableInsertHandler)
             )
-        }
-    }
-
-    private fun collectParametersFromFile(file: NeonFile?, result: MutableSet<String>) {
-        val rootValue = (file ?: return).value
-        if (rootValue is NeonArray) {
-            val map = rootValue.map ?: return
-            val parametersValue = map["parameters"]
-            if (parametersValue is NeonArray) {
-                collectParameters(parametersValue, "", result)
-            }
-        }
-    }
-
-    /**
-     * Recursively collect parameter keys with dot-notation for nested values.
-     */
-    private fun collectParameters(array: NeonArray, prefix: String, result: MutableSet<String>) {
-        val keys = array.keys ?: return
-        for (key in keys.filterNotNull()) {
-            val keyText = key.keyText ?: continue
-            val fullKey = if (prefix.isEmpty()) keyText else "$prefix.$keyText"
-            result.add(fullKey)
-
-            val parent = key.parent
-            if (parent is NeonKeyValPair) {
-                val value = parent.value
-                if (value is NeonArray) {
-                    collectParameters(value, fullKey, result)
-                }
-            }
         }
     }
 

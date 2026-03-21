@@ -6,15 +6,15 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
-import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.search.GlobalSearchScope
-import dev.noctud.neon.ext.EnvFileParser
-import dev.noctud.neon.ext.isPhpStan
 import com.jetbrains.php.PhpIndex
 import dev.noctud.neon.completion.ParameterCompletionProvider
 import dev.noctud.neon.completion.PhpStanIdentifierCompletionProvider
 import dev.noctud.neon.editor.NeonSyntaxHighlighter
-import dev.noctud.neon.file.NeonFileType
+import dev.noctud.neon.ext.EnvFileParser
+import dev.noctud.neon.ext.collectAllParameters
+import dev.noctud.neon.ext.collectAllServices
+import dev.noctud.neon.ext.collectParameters
+import dev.noctud.neon.ext.isPhpStan
 import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonArray
 import dev.noctud.neon.psi.elements.NeonFile
@@ -111,52 +111,13 @@ class NeonAnnotator : Annotator {
         val file = element.containingFile ?: return emptySet()
         if (file.isPhpStan()) {
             result.addAll(ParameterCompletionProvider.PHPSTAN_DEFAULTS)
-            collectParametersFromFile(element.containingFile as? NeonFile, result)
+            (element.containingFile as? NeonFile ?: return emptySet()).collectParameters(result)
         } else {
             result.addAll(ParameterCompletionProvider.NETTE_DEFAULTS)
-
-            val project = element.project
-            val scope = GlobalSearchScope.projectScope(project)
-            val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
-            for (vf in neonFiles) {
-                if (vf.isPhpStan()) continue
-                val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
-                collectParametersFromFile(psiFile, result)
-            }
-
-            // Add .env variables so they don't trigger false warnings
-            result.addAll(EnvFileParser.collectEnvVariables(project))
+            result.addAll(element.project.collectAllParameters())
+            result.addAll(EnvFileParser.collectEnvVariables(element.project))
         }
-
         return result
-    }
-
-    private fun collectParametersFromFile(file: NeonFile?, result: MutableSet<String>) {
-        val rootValue = (file ?: return).value
-        if (rootValue is NeonArray) {
-            val map = rootValue.map ?: return
-            val parametersValue = map["parameters"]
-            if (parametersValue is NeonArray) {
-                collectParameters(parametersValue, "", result)
-            }
-        }
-    }
-
-    private fun collectParameters(array: NeonArray, prefix: String, result: MutableSet<String>) {
-        val keys = array.keys ?: return
-        for (key in keys.filterNotNull()) {
-            val keyText = key.keyText ?: continue
-            val fullKey = if (prefix.isEmpty()) keyText else "$prefix.$keyText"
-            result.add(fullKey)
-
-            val parent = key.parent
-            if (parent is NeonKeyValPair) {
-                val value = parent.value
-                if (value is NeonArray) {
-                    collectParameters(value, fullKey, result)
-                }
-            }
-        }
     }
 
     /**
@@ -246,36 +207,12 @@ class NeonAnnotator : Annotator {
         val serviceName = text.substring(1).substringBefore("::")
 
         // Check if the service is defined in any neon file's services: section
-        val knownServices = collectKnownServices(element)
+        val knownServices = element.project.collectAllServices()
         if (!knownServices.contains(serviceName)) {
             holder.newAnnotation(HighlightSeverity.WARNING, "Service '@$serviceName' not found")
                 .range(element)
                 .create()
         }
-    }
-
-    private fun collectKnownServices(element: PsiElement): Set<String> {
-        val result = mutableSetOf<String>()
-        val project = element.project
-        val scope = GlobalSearchScope.projectScope(project)
-        val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
-        for (vf in neonFiles) {
-            if (vf.isPhpStan()) continue
-            val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
-            val rootValue = psiFile.value
-            if (rootValue is NeonArray) {
-                val map = rootValue.map ?: continue
-                val servicesValue = map["services"]
-                if (servicesValue is NeonArray) {
-                    val keys = servicesValue.keys ?: continue
-                    for (key in keys.filterNotNull()) {
-                        val keyText = key.keyText ?: continue
-                        if (keyText != "-") result.add(keyText)
-                    }
-                }
-            }
-        }
-        return result
     }
 
     /**
