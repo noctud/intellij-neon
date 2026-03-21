@@ -31,8 +31,7 @@ class NeonAnnotator : Annotator {
                 highlightPhpStanIdentifier(element, holder)
                 checkUnresolvedServiceRef(element, holder)
                 checkUnresolvedClass(element, holder)
-                highlightSimpleClassName(element, holder)
-                highlightFqnClass(element, holder)
+                highlightClassName(element, holder)
             }
         } else if (element is PsiErrorElement) {
             val prevSibling = element.prevSibling ?: return
@@ -280,39 +279,39 @@ class NeonAnnotator : Annotator {
     }
 
     /**
-     * Highlight simple class names without namespace (e.g., Throwable, Exception, DateTime)
-     * by checking PhpIndex. Only matches PascalCase names to avoid false positives.
+     * Apply enforced class color to PHP class references:
+     * - FQN classes with \ (e.g., App\Model\Foo)
+     * - Simple PascalCase names that resolve in PhpIndex (e.g., Throwable, Exception)
+     * Skips keys, service refs (@), paths, variables, wildcards.
      */
-    private fun highlightSimpleClassName(element: PsiElement, holder: AnnotationHolder) {
+    private fun highlightClassName(element: PsiElement, holder: AnnotationHolder) {
         val text = element.text
-        if (!looksLikeSimpleClassName(text)) return
+        if (text.startsWith("@") || text.contains("/") || text.contains("%") || text.contains("*")) return
 
-        val phpIndex = PhpIndex.getInstance(element.project)
-        val found = phpIndex.getClassesByName(text).isNotEmpty()
-            || phpIndex.getInterfacesByName(text).isNotEmpty()
-            || phpIndex.getTraitsByName(text).isNotEmpty()
-        if (found) {
+        // Skip if inside a KEY node
+        val parent = element.parent
+        if (parent != null && (parent.node.elementType === _NeonTypes.KEY || parent.node.elementType === _NeonTypes.ARRAY_KEY)) return
+        val grandparent = parent?.parent
+        if (grandparent != null && (grandparent.node.elementType === _NeonTypes.KEY || grandparent.node.elementType === _NeonTypes.ARRAY_KEY)) return
+
+        val isClass = if (text.contains("\\")) {
+            true // FQN — always color as class
+        } else if (looksLikeSimpleClassName(text)) {
+            // Simple name — check PhpIndex
+            val phpIndex = PhpIndex.getInstance(element.project)
+            phpIndex.getClassesByName(text).isNotEmpty()
+                || phpIndex.getInterfacesByName(text).isNotEmpty()
+                || phpIndex.getTraitsByName(text).isNotEmpty()
+        } else {
+            false
+        }
+
+        if (isClass) {
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
                 .range(element)
                 .enforcedTextAttributes(NeonSyntaxHighlighter.CLASSNAME.defaultAttributes)
                 .create()
         }
-    }
-
-    /**
-     * Apply enforced class color to FQN classes (with \) so they match the same
-     * color as simple class names detected by highlightSimpleClassName.
-     */
-    private fun highlightFqnClass(element: PsiElement, holder: AnnotationHolder) {
-        val text = element.text
-        if (!text.contains("\\")) return
-        if (text.startsWith("@")) return // service refs get their own color
-        if (text.contains("/") || text.contains("%") || text.contains("*")) return
-
-        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
-            .range(element)
-            .enforcedTextAttributes(NeonSyntaxHighlighter.CLASSNAME.defaultAttributes)
-            .create()
     }
 
     /**
