@@ -8,6 +8,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiErrorElement
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
+import dev.noctud.neon.ext.EnvFileParser
 import dev.noctud.neon.ext.isPhpStan
 import com.jetbrains.php.PhpIndex
 import dev.noctud.neon.completion.ParameterCompletionProvider
@@ -114,6 +115,9 @@ class NeonAnnotator : Annotator {
                 val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
                 collectParametersFromFile(psiFile, result)
             }
+
+            // Add .env variables so they don't trigger false warnings
+            result.addAll(EnvFileParser.collectEnvVariables(project))
         }
 
         return result

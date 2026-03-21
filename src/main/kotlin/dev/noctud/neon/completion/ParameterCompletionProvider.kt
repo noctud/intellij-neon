@@ -10,6 +10,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.ProcessingContext
+import dev.noctud.neon.ext.EnvFileParser
 import dev.noctud.neon.ext.isPhpStan
 import dev.noctud.neon.file.NeonFileType
 import dev.noctud.neon.lexer._NeonTypes
@@ -41,24 +42,25 @@ class ParameterCompletionProvider : CompletionProvider<CompletionParameters>() {
         val isPhpStan = file.isPhpStan()
 
         val variables = mutableSetOf<String>()
+        val envVariables = mutableSetOf<String>()
 
         if (isPhpStan) {
             variables.addAll(PHPSTAN_DEFAULTS)
-            // Also collect parameters defined in this PHPStan config
             collectParametersFromFile(element.containingFile as? NeonFile, variables)
         } else {
             variables.addAll(NETTE_DEFAULTS)
-            // Collect user-defined parameters from all non-phpstan neon files in the project
             val project = element.project
             val scope = GlobalSearchScope.projectScope(project)
             val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
 
             for (vf in neonFiles) {
                 if (vf.isPhpStan()) continue
-
                 val psiFile = com.intellij.psi.PsiManager.getInstance(project).findFile(vf) as? NeonFile ?: continue
                 collectParametersFromFile(psiFile, variables)
             }
+
+            // Add .env variables
+            envVariables.addAll(EnvFileParser.collectEnvVariables(project) - variables)
         }
 
         for (variable in variables) {
@@ -67,6 +69,16 @@ class ParameterCompletionProvider : CompletionProvider<CompletionParameters>() {
                     .withPresentableText("%$variable%")
                     .withIcon(AllIcons.Nodes.Variable)
                     .withTypeText(if (isPhpStan) "phpstan" else "parameter")
+                    .withInsertHandler(VariableInsertHandler)
+            )
+        }
+
+        for (variable in envVariables) {
+            results.addElement(
+                LookupElementBuilder.create("$variable%")
+                    .withPresentableText("%$variable%")
+                    .withIcon(AllIcons.Nodes.Variable)
+                    .withTypeText(".env")
                     .withInsertHandler(VariableInsertHandler)
             )
         }

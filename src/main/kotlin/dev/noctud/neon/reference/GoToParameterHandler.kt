@@ -4,6 +4,8 @@ import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.psi.PsiManager
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import dev.noctud.neon.ext.isPhpStan
@@ -47,7 +49,38 @@ class GoToParameterHandler : GotoDeclarationHandler {
             }
         }
 
+        // If not found in neon parameters, try .env files
+        if (targets.isEmpty()) {
+            findEnvDefinition(element.project, varName)?.let { targets.add(it) }
+        }
+
         return if (targets.isEmpty()) null else targets.toTypedArray()
+    }
+
+    /**
+     * Find a variable definition in .env files at the project root.
+     * Returns the PsiElement for the line where the variable is defined.
+     */
+    private fun findEnvDefinition(project: com.intellij.openapi.project.Project, varName: String): PsiElement? {
+        val basePath = project.basePath ?: return null
+        val baseDir = LocalFileSystem.getInstance().findFileByPath(basePath) ?: return null
+
+        for (child in baseDir.children) {
+            if (child.name == ".env" || (child.name.startsWith(".env.") && !child.isDirectory)) {
+                val psiFile = PsiManager.getInstance(project).findFile(child) ?: continue
+                val text = psiFile.text
+                val lines = text.lines()
+                var offset = 0
+                for (line in lines) {
+                    if (line.startsWith("$varName=")) {
+                        // Return the element at this offset
+                        return psiFile.findElementAt(offset)
+                    }
+                    offset += line.length + 1 // +1 for newline
+                }
+            }
+        }
+        return null
     }
 
     /**

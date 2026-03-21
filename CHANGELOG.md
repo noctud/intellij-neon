@@ -4,9 +4,18 @@
 
 ### Added
 
+- Syntax coloring — distinct colors for strings, numbers, datetime, PHP classes, keywords, variables, service references, file paths, and named arguments
+- `%variable%` highlighting and autocompletion from `parameters:` sections, Nette defaults, and `.env` files
+- `%variable%` Ctrl+Click navigation to parameter definition in neon files or `.env` files
+- Warning for undefined `%variable%` parameters
+- `@service` reference highlighting, autocompletion from `services:` sections, and Ctrl+Click navigation
+- Warning for undefined `@service` references
 - Bidirectional PHP class references — "Find Usages" on a PHP class now shows usages in `.neon` files
+- Warning for unresolved PHP classes and namespaces in neon values
 - Rename refactoring support — renaming a PHP class updates references in `.neon` files and vice versa
-- Support for `@`-prefixed class references used in Nette service definitions
+- PHPStan support — separate variable system, error identifier highlighting with autocompletion and validation
+- File path detection and Ctrl+Click navigation for `.php` and `.neon` paths
+- Named argument highlighting inside entity parameters (e.g. `Foo(directory: %tempDir%)`)
 
 ### Changed
 
