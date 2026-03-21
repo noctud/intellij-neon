@@ -29,7 +29,6 @@ class NeonAnnotator : Annotator {
             if (type === _NeonTypes.T_LITERAL) {
                 highlightNamedArgument(element, holder)
                 highlightPhpStanIdentifier(element, holder)
-                highlightFilePath(element, holder)
                 checkUnresolvedServiceRef(element, holder)
                 checkUnresolvedClass(element, holder)
                 highlightSimpleClassName(element, holder)
@@ -301,24 +300,13 @@ class NeonAnnotator : Annotator {
     }
 
     /**
-     * Apply enforced class color to file paths (.php, .neon).
-     */
-    private fun highlightFilePath(element: PsiElement, holder: AnnotationHolder) {
-        val text = element.text
-        if (!text.endsWith(".php") && !text.endsWith(".neon")) return
-        holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
-            .range(element)
-            .enforcedTextAttributes(NeonSyntaxHighlighter.CLASSNAME.defaultAttributes)
-            .create()
-    }
-
-    /**
      * Apply enforced class color to FQN classes (with \) so they match the same
      * color as simple class names detected by highlightSimpleClassName.
      */
     private fun highlightFqnClass(element: PsiElement, holder: AnnotationHolder) {
         val text = element.text
         if (!text.contains("\\")) return
+        if (text.startsWith("@")) return // service refs get their own color
         if (text.contains("/") || text.contains("%") || text.contains("*")) return
 
         holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
