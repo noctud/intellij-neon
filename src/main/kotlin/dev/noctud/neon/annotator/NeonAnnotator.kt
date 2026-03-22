@@ -227,9 +227,10 @@ class NeonAnnotator : Annotator {
 
         // Skip if inside a KEY node
         val parent = element.parent
-        if (parent != null && (parent.node.elementType === _NeonTypes.KEY || parent.node.elementType === _NeonTypes.ARRAY_KEY)) return
-        val grandparent = parent?.parent
-        if (grandparent != null && (grandparent.node.elementType === _NeonTypes.KEY || grandparent.node.elementType === _NeonTypes.ARRAY_KEY)) return
+        val parentType = parent?.node?.elementType
+        if (parentType === _NeonTypes.KEY || parentType === _NeonTypes.ARRAY_KEY) return
+        val grandparentType = parent?.parent?.node?.elementType
+        if (grandparentType === _NeonTypes.KEY || grandparentType === _NeonTypes.ARRAY_KEY) return
 
         val isClass = if (text.contains("\\")) {
             true // FQN — always color as class
