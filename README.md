@@ -12,6 +12,8 @@ Neon for PhpStorm and IntelliJ Idea
 If you have any problems with the plugin, [create an issue](https://github.com/noctud/intellij-neon/issues/new/choose) or join the [Noctud Discord](https://discord.noctud.dev).
 <!-- Plugin description end -->
 
+![Screenshot](.github/screenshot.png)
+
 Installation
 ------------
 Settings → Plugins → Browse repositories → Find "Neon" → Install Plugin → Apply

@@ -1,10 +1,10 @@
 # Changelog
 
-## [1.1.0] - Unreleased
+## [1.1.0] - 2026-03-22
 
 ### Added
 
-- Syntax coloring — distinct colors for strings, numbers, datetime, PHP classes, keywords, variables, service references, file paths, and named arguments
+- Syntax coloring for Neon language elements
 - `%variable%` highlighting and autocompletion from `parameters:` sections, Nette defaults, and `.env` files
 - `%variable%` Ctrl+Click navigation to parameter definition in neon files or `.env` files
 - Warning for undefined `%variable%` parameters
