@@ -23,51 +23,51 @@ class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
     }
 
     companion object {
-        const val UNKNOWN_ID: String = "Bad character"
+        const val UNKNOWN_ID: String = "NEON_UNKNOWN"
         val UNKNOWN: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(UNKNOWN_ID, HighlighterColors.BAD_CHARACTER)
 
-        const val COMMENT_ID: String = "Comment"
+        const val COMMENT_ID: String = "NEON_COMMENT"
         val COMMENT: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(COMMENT_ID, DefaultLanguageHighlighterColors.LINE_COMMENT)
 
-        const val IDENTIFIER_ID: String = "Identifier"
+        const val IDENTIFIER_ID: String = "NEON_IDENTIFIER"
         val IDENTIFIER: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(IDENTIFIER_ID, DefaultLanguageHighlighterColors.KEYWORD)
 
-        const val INTERPUNCTION_ID: String = "Interpunction"
+        const val INTERPUNCTION_ID: String = "NEON_INTERPUNCTION"
         val INTERPUNCTION: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(INTERPUNCTION_ID, DefaultLanguageHighlighterColors.DOT)
 
-        const val NUMBER_ID: String = "Number"
+        const val NUMBER_ID: String = "NEON_NUMBER"
         val NUMBER: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(NUMBER_ID, DefaultLanguageHighlighterColors.NUMBER)
 
-        const val KEYWORD_ID: String = "Keyword"
+        const val KEYWORD_ID: String = "NEON_KEYWORD"
         val KEYWORD: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(KEYWORD_ID, DefaultLanguageHighlighterColors.NUMBER)
 
-        const val DATETIME_ID: String = "Datetime"
+        const val DATETIME_ID: String = "NEON_DATETIME"
         val DATETIME: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(DATETIME_ID, DefaultLanguageHighlighterColors.NUMBER)
 
-        const val STRING_ID: String = "String"
+        const val STRING_ID: String = "NEON_STRING"
         val STRING: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(STRING_ID, DefaultLanguageHighlighterColors.STRING)
 
-        const val CLASSNAME_ID: String = "Class reference"
+        const val CLASSNAME_ID: String = "NEON_CLASSNAME"
         val CLASSNAME: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(CLASSNAME_ID, DefaultLanguageHighlighterColors.CLASS_NAME)
 
-        const val NAMED_ARGUMENT_ID: String = "Named argument"
+        const val NAMED_ARGUMENT_ID: String = "NEON_NAMED_ARGUMENT"
         val NAMED_ARGUMENT: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(NAMED_ARGUMENT_ID, TextAttributesKey.createTextAttributesKey("PHP_NAMED_ARGUMENT"))
 
-        const val PHPSTAN_IDENTIFIER_ID: String = "PHPStan identifier"
+        const val PHPSTAN_IDENTIFIER_ID: String = "NEON_PHPSTAN_IDENTIFIER"
         val PHPSTAN_IDENTIFIER: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(PHPSTAN_IDENTIFIER_ID, DefaultLanguageHighlighterColors.METADATA)
 
-        const val VARIABLE_ID: String = "Variable"
+        const val VARIABLE_ID: String = "NEON_VARIABLE"
         val VARIABLE: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(VARIABLE_ID, TextAttributesKey.createTextAttributesKey("PHP_VAR"))
 
