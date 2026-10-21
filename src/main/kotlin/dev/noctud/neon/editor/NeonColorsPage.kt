@@ -55,7 +55,7 @@ class NeonColorsPage : ColorSettingsPage {
                 "\t\t\t- Lisa\n" +
                 "\t\t\t- %children.third%\n" +
                 "\n" +
-                "\t\tentity: Column(type=\"integer\")\n" +
+                "\t\tentity: Column(<named_arg>type</named_arg>=\"integer\")\n" +
                 "\n" +
                 "\tservices:\n" +
                 "\t\tmyService: Nette\\Object(\"AHOJ\")\n" +
@@ -69,23 +69,28 @@ class NeonColorsPage : ColorSettingsPage {
                 "development < common:\n"
     }
 
-    override fun getAdditionalHighlightingTagToDescriptorMap(): MutableMap<String?, TextAttributesKey?>? {
-        return null
+    override fun getAdditionalHighlightingTagToDescriptorMap(): Map<String, TextAttributesKey> {
+        return TAGS
     }
 
     companion object {
         val ATTRS: Array<AttributesDescriptor> = arrayOf<AttributesDescriptor>(
-            AttributesDescriptor("colors.bad.character", NeonSyntaxHighlighter.UNKNOWN),
-            AttributesDescriptor("colors.comment", NeonSyntaxHighlighter.COMMENT),
-            AttributesDescriptor("colors.identifier", NeonSyntaxHighlighter.IDENTIFIER),
-            AttributesDescriptor("colors.interpunction", NeonSyntaxHighlighter.INTERPUNCTION),
-            AttributesDescriptor("colors.number", NeonSyntaxHighlighter.NUMBER),
-            AttributesDescriptor("colors.datetime", NeonSyntaxHighlighter.DATETIME),
-            AttributesDescriptor("colors.keyword", NeonSyntaxHighlighter.KEYWORD),
-            AttributesDescriptor("colors.string", NeonSyntaxHighlighter.STRING),
-            AttributesDescriptor("colors.class.reference", NeonSyntaxHighlighter.CLASSNAME),
-            AttributesDescriptor("colors.variable", NeonSyntaxHighlighter.VARIABLE),
-            AttributesDescriptor("colors.named.argument", NeonSyntaxHighlighter.NAMED_ARGUMENT),
+            AttributesDescriptor("Bad character", NeonSyntaxHighlighter.UNKNOWN),
+            AttributesDescriptor("Comment", NeonSyntaxHighlighter.COMMENT),
+            AttributesDescriptor("Key", NeonSyntaxHighlighter.IDENTIFIER),
+            AttributesDescriptor("Punctuation", NeonSyntaxHighlighter.INTERPUNCTION),
+            AttributesDescriptor("Number", NeonSyntaxHighlighter.NUMBER),
+            AttributesDescriptor("Datetime", NeonSyntaxHighlighter.DATETIME),
+            AttributesDescriptor("Keyword", NeonSyntaxHighlighter.KEYWORD),
+            AttributesDescriptor("String", NeonSyntaxHighlighter.STRING),
+            AttributesDescriptor("Class reference", NeonSyntaxHighlighter.CLASSNAME),
+            AttributesDescriptor("Variable", NeonSyntaxHighlighter.VARIABLE),
+            AttributesDescriptor("Named argument", NeonSyntaxHighlighter.NAMED_ARGUMENT),
+            AttributesDescriptor("Service reference / PHPStan identifier", NeonSyntaxHighlighter.PHPSTAN_IDENTIFIER),
+        )
+
+        private val TAGS: Map<String, TextAttributesKey> = mapOf(
+            "named_arg" to NeonSyntaxHighlighter.NAMED_ARGUMENT,
         )
     }
 }
