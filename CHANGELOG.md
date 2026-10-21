@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.1] - 2026-10-21
+
+### Changed
+
+- Color keys were renamed, so customized Neon colors are reset to defaults
+
+### Fixed
+
+- IDE error caused by color keys clashing with other plugins (e.g. Groovy)
+- Color settings page showing raw keys like `colors.bad.character` instead of readable names
+- Service reference / PHPStan identifier color missing from the color settings page
+- Named argument color not shown in the color settings preview
+- Customized "Class reference" color not applied to short class names (e.g. `Foo` instead of `App\Foo`)
+
 ## [1.1.0] - 2026-03-22
 
 ### Added

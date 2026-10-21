@@ -247,7 +247,7 @@ class NeonAnnotator : Annotator {
         if (isClass) {
             holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
                 .range(element)
-                .enforcedTextAttributes(NeonSyntaxHighlighter.CLASSNAME.defaultAttributes)
+                .textAttributes(NeonSyntaxHighlighter.CLASSNAME)
                 .create()
         }
     }
