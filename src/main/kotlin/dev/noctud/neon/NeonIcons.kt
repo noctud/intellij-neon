@@ -5,5 +5,5 @@ import javax.swing.Icon
 
 object NeonIcons {
     @JvmField
-    var FILETYPE_ICON: Icon = getIcon("/icons/Neon.png", NeonIcons::class.java)
+    var FILETYPE_ICON: Icon = getIcon("/icons/Neon.svg", NeonIcons::class.java)
 }
