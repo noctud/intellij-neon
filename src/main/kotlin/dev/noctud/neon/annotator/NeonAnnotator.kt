@@ -15,6 +15,8 @@ import dev.noctud.neon.ext.collectAllParameters
 import dev.noctud.neon.ext.collectAllServices
 import dev.noctud.neon.ext.collectParameters
 import dev.noctud.neon.ext.isPhpStan
+import dev.noctud.neon.ext.neonFileKind
+import dev.noctud.neon.file.NeonFileKind
 import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonArray
 import dev.noctud.neon.psi.elements.NeonFile
@@ -25,7 +27,15 @@ class NeonAnnotator : Annotator {
         val type = element.node.elementType
 
         if (type === _NeonTypes.T_LITERAL || type === _NeonTypes.T_STRING) {
-            highlightVariables(element, holder)
+            val kind = element.containingFile?.neonFileKind ?: return
+            if (kind.isTranslation) {
+                // Catalogue values are prose: only placeholders mean something, and they come from
+                // the translate() call, so there is nothing to check them against. ICU uses {name} instead.
+                if (kind == NeonFileKind.TRANSLATION) highlightVariables(element, holder, checkDefined = false)
+                return
+            }
+
+            highlightVariables(element, holder, checkDefined = true)
             if (type === _NeonTypes.T_LITERAL) {
                 highlightNamedArgument(element, holder)
                 highlightPhpStanIdentifier(element, holder)
@@ -61,9 +71,9 @@ class NeonAnnotator : Annotator {
 
     /**
      * Find %variable% patterns within a literal token, highlight them,
-     * and warn if the variable is not defined.
+     * and warn if the variable is not defined (when [checkDefined]).
      */
-    private fun highlightVariables(element: PsiElement, holder: AnnotationHolder) {
+    private fun highlightVariables(element: PsiElement, holder: AnnotationHolder, checkDefined: Boolean) {
         val text = element.text
         val baseOffset = element.textRange.startOffset
         var knownVars: Set<String>? = null
@@ -88,13 +98,16 @@ class NeonAnnotator : Annotator {
                             .create()
 
                         // Check if variable is defined (lazy-load known vars)
-                        if (knownVars == null) {
-                            knownVars = collectKnownVariables(element)
-                        }
-                        if (!knownVars.contains(varName) && !varName.startsWith("env.")) {
-                            holder.newAnnotation(HighlightSeverity.WARNING, "Parameter '%$varName%' might not be defined")
-                                .range(range)
-                                .create()
+                        if (checkDefined) {
+                            if (knownVars == null) {
+                                knownVars = collectKnownVariables(element)
+                            }
+
+                            if (!knownVars.contains(varName) && !varName.startsWith("env.")) {
+                                holder.newAnnotation(HighlightSeverity.WARNING, "Parameter '%$varName%' might not be defined")
+                                    .range(range)
+                                    .create()
+                            }
                         }
 
                         i = end + 1

@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
+import dev.noctud.neon.ext.isTranslation
 import dev.noctud.neon.lexer._NeonTypes
 import java.io.File
 
@@ -17,6 +18,7 @@ class GoToFileHandler : GotoDeclarationHandler {
     override fun getGotoDeclarationTargets(element: PsiElement?, offset: Int, editor: Editor?): Array<PsiElement>? {
         if (element == null) return null
         if (element.node.elementType !== _NeonTypes.T_LITERAL) return null
+        if (element.containingFile?.isTranslation() == true) return null
 
         var text = element.text
         if (!FILE_PATH.matches(text)) return null

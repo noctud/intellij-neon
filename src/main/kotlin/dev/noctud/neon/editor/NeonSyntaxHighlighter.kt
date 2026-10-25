@@ -13,9 +13,9 @@ import dev.noctud.neon.lexer.NeonLexer
 import dev.noctud.neon.lexer.NeonTokenTypes
 import dev.noctud.neon.lexer._NeonTypes
 
-class NeonSyntaxHighlighter : SyntaxHighlighterBase() {
+class NeonSyntaxHighlighter(private val translation: Boolean = false) : SyntaxHighlighterBase() {
     override fun getHighlightingLexer(): Lexer {
-        return NeonHighlightingLexer(NeonLexer())
+        return NeonHighlightingLexer(NeonLexer(), translation)
     }
 
     override fun getTokenHighlights(type: IElementType?): Array<TextAttributesKey> {

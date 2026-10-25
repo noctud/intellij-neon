@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.jetbrains.php.PhpIndex
+import dev.noctud.neon.ext.isTranslation
 import dev.noctud.neon.psi.impl.elements.NeonScalarImpl
 
 class GoToClassHandler : GotoDeclarationHandler {
@@ -12,6 +13,11 @@ class GoToClassHandler : GotoDeclarationHandler {
         if (element == null || element.parent == null || element.parent !is NeonScalarImpl) {
             return arrayOfNulls(0)
         }
+
+        if (element.containingFile?.isTranslation() == true) {
+            return arrayOfNulls(0)
+        }
+
         val scalar = element.parent as NeonScalarImpl
         val phpIndex = PhpIndex.getInstance(element.project)
 

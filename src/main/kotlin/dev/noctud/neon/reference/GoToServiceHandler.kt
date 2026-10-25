@@ -5,6 +5,7 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import dev.noctud.neon.ext.findServiceDefinitions
+import dev.noctud.neon.ext.isTranslation
 import dev.noctud.neon.lexer._NeonTypes
 
 /**
@@ -15,6 +16,7 @@ class GoToServiceHandler : GotoDeclarationHandler {
     override fun getGotoDeclarationTargets(element: PsiElement?, offset: Int, editor: Editor?): Array<PsiElement>? {
         if (element == null) return null
         if (element.node.elementType !== _NeonTypes.T_LITERAL) return null
+        if (element.containingFile?.isTranslation() == true) return null
 
         val text = element.text
         if (!text.startsWith("@") || text.length < 2) return null

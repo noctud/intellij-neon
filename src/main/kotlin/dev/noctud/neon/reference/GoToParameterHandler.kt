@@ -9,6 +9,7 @@ import com.intellij.psi.PsiManager
 import dev.noctud.neon.ext.findParameterDefinition
 import dev.noctud.neon.ext.getNeonFiles
 import dev.noctud.neon.ext.isPhpStan
+import dev.noctud.neon.ext.isTranslation
 import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonFile
 
@@ -26,6 +27,8 @@ class GoToParameterHandler : GotoDeclarationHandler {
         val varName = findVariableAtOffset(text, localOffset) ?: return null
 
         val file = element.containingFile ?: return null
+        // %name% in a catalogue is a translator placeholder, not a DI parameter
+        if (file.isTranslation()) return null
         val targets = mutableListOf<PsiElement>()
 
         if (file.isPhpStan()) {

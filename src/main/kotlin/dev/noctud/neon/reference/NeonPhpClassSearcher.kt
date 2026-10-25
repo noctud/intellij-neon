@@ -7,7 +7,8 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.Processor
 import com.jetbrains.php.lang.psi.elements.PhpNamedElement
-import dev.noctud.neon.ext.isPhpStan
+import dev.noctud.neon.ext.neonFileKind
+import dev.noctud.neon.file.NeonFileKind
 import dev.noctud.neon.file.NeonFileType
 import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.impl.elements.NeonScalarImpl
@@ -41,7 +42,7 @@ class NeonPhpClassSearcher : QueryExecutorBase<PsiReference, ReferencesSearch.Se
         val fqnWithoutLeadingSlash = fqn.trimStart('\\')
 
         for (vf in neonFiles) {
-            if (vf.isPhpStan()) continue
+            if (vf.neonFileKind != NeonFileKind.CONFIG) continue
 
             // Quick text check before parsing
             val content = vf.contentsToByteArray().toString(Charsets.UTF_8)
