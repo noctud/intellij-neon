@@ -1,7 +1,7 @@
 package dev.noctud.neon.ext
 
 import com.intellij.openapi.vfs.VirtualFile
+import dev.noctud.neon.file.NeonFileKind
 
-fun VirtualFile.isPhpStan(): Boolean {
-    return name.contains("phpstan", ignoreCase = true) && name.endsWith(".neon")
-}
+val VirtualFile.neonFileKind: NeonFileKind
+    get() = NeonFileKind.of(name)

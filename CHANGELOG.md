@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- Translation catalogues (`<domain>.<locale>.neon`, e.g. `messages.en_US.neon` or `messages+intl-icu.pt-BR.neon`) are recognized and treated as prose: `%placeholder%` is highlighted without the "might not be defined" warning, and config-only highlighting, warnings, completion and navigation (PHP classes, `@service`, file paths) are turned off there
+
+### Changed
+
+- Renaming a PHP class no longer rewrites text in translation catalogues, and they are skipped when collecting parameters and services
+
 ## [1.1.1] - 2026-10-21
 
 ### Changed

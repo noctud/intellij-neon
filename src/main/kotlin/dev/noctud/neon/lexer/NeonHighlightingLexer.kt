@@ -11,8 +11,10 @@ import com.intellij.psi.TokenType
  * - Numbers (integers, floats, hex, octal, binary, scientific notation)
  * - Keys (followed by colon or =)
  * - Strings (quoted T_STRING tokens) get string color
+ *
+ * In a [translation] catalogue values are prose, so `@user` or `C:\temp` stay plain strings.
  */
-class NeonHighlightingLexer(baseLexer: Lexer) : LookAheadLexer(baseLexer, 1) {
+class NeonHighlightingLexer(baseLexer: Lexer, private val translation: Boolean = false) : LookAheadLexer(baseLexer, 1) {
     override fun lookAhead(baseLexer: Lexer) {
         val currentToken = baseLexer.tokenType
 
@@ -31,7 +33,9 @@ class NeonHighlightingLexer(baseLexer: Lexer) : LookAheadLexer(baseLexer, 1) {
             } else {
                 advanceLexer(baseLexer)
                 if (!checkKeyAfterLiteral(baseLexer)) {
-                    if (text.startsWith("@")) {
+                    if (translation) {
+                        replaceCachedType(0, NeonTokenTypes.NEON_STRING)
+                    } else if (text.startsWith("@")) {
                         // Service reference — @routerFactory, @App\Model\Handler
                         replaceCachedType(0, NeonTokenTypes.NEON_SERVICE_REF)
                     } else if (text.contains("\\")) {

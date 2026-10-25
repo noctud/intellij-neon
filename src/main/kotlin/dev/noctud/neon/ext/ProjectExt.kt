@@ -5,16 +5,17 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
+import dev.noctud.neon.file.NeonFileKind
 import dev.noctud.neon.file.NeonFileType
 import dev.noctud.neon.psi.elements.NeonFile
 
-/** Get all non-phpstan NeonFile PSI files in the project. */
+/** Get all Nette config NeonFile PSI files in the project (no PHPStan configs or translations). */
 fun Project.getNeonFiles(): List<NeonFile> {
     val scope = GlobalSearchScope.projectScope(this)
     val vFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, scope)
     val psiManager = PsiManager.getInstance(this)
     return vFiles.mapNotNull { vf ->
-        if (vf.isPhpStan()) null
+        if (vf.neonFileKind != NeonFileKind.CONFIG) null
         else psiManager.findFile(vf) as? NeonFile
     }
 }

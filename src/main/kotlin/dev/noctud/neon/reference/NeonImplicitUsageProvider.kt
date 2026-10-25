@@ -6,7 +6,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.search.GlobalSearchScope
 import com.jetbrains.php.lang.psi.elements.PhpClass
-import dev.noctud.neon.ext.isPhpStan
+import dev.noctud.neon.ext.neonFileKind
+import dev.noctud.neon.file.NeonFileKind
 import dev.noctud.neon.file.NeonFileType
 
 /**
@@ -53,7 +54,7 @@ class NeonImplicitUsageProvider : ImplicitUsageProvider {
         val neonFiles = FileTypeIndex.getFiles(NeonFileType.INSTANCE, GlobalSearchScope.projectScope(project))
 
         for (vf in neonFiles) {
-            if (vf.isPhpStan()) continue
+            if (vf.neonFileKind != NeonFileKind.CONFIG) continue
 
             try {
                 val content = vf.contentsToByteArray().toString(Charsets.UTF_8)

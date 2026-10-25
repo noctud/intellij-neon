@@ -4,6 +4,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiReference
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import dev.noctud.neon.ext.isTranslation
 import dev.noctud.neon.lexer._NeonTypes
 import dev.noctud.neon.psi.elements.NeonScalar
 import dev.noctud.neon.reference.NeonScalarReference
@@ -36,6 +37,8 @@ class NeonScalarImpl(astNode: ASTNode) : NeonPsiElementImpl(astNode), NeonScalar
     }
 
     override fun getReference(): PsiReference? {
+        // Catalogue values are prose — renaming a class must not rewrite a translation
+        if (containingFile.isTranslation()) return null
         val fqn = classFqn ?: return null
         val text = valueText
         val prefix = if (text.startsWith("@")) 1 else 0

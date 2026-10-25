@@ -193,6 +193,27 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         assertToken(l, NeonTokenTypes.NEON_FILEPATH, "services.neon")
     }
 
+    // === Translation catalogues — values are prose ===
+
+    @Test
+    fun testTranslationValuesArePlainStrings() {
+        for (value in listOf("@routerFactory", "App\\Model\\Foo", "app/Model/Foo.php")) {
+            val l = NeonHighlightingLexer(NeonLexer(), translation = true)
+            l.start("[$value]")
+            l.advance() // skip [
+            assertToken(l, NeonTokenTypes.NEON_STRING, value)
+        }
+    }
+
+    @Test
+    fun testTranslationKeepsKeysAndKeywords() {
+        val l = NeonHighlightingLexer(NeonLexer(), translation = true)
+        l.start("key: no")
+        assertToken(l, NeonTokenTypes.NEON_KEY, "key")
+        skipTo(l, "no")
+        assertToken(l, NeonTokenTypes.NEON_KEYWORD, "no")
+    }
+
     // === isNumeric unit tests ===
 
     @Test
