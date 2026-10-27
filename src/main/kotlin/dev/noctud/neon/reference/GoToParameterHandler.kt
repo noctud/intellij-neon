@@ -6,6 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiManager
+import dev.noctud.neon.ext.EnvFileParser
 import dev.noctud.neon.ext.findParameterDefinition
 import dev.noctud.neon.ext.getNeonFiles
 import dev.noctud.neon.ext.isPhpStan
@@ -44,9 +45,9 @@ class GoToParameterHandler : GotoDeclarationHandler {
             findNetteStubDefinition(element.project, varName)?.let { targets.add(it) }
         }
 
-        // Fallback: try .env files
-        if (targets.isEmpty()) {
-            findEnvDefinition(element.project, varName)?.let { targets.add(it) }
+        // Fallback: %env% is the array of environment variables, %env.NAME% one of them declared in .env files
+        if (targets.isEmpty() && EnvFileParser.isEnvParameter(varName)) {
+            targets.addAll(findEnvTargets(element.project, varName))
         }
 
         return if (targets.isEmpty()) null else targets.toTypedArray()
@@ -79,24 +80,14 @@ class GoToParameterHandler : GotoDeclarationHandler {
         return psiFile.findParameterDefinition(varName)
     }
 
-    private fun findEnvDefinition(project: com.intellij.openapi.project.Project, varName: String): PsiElement? {
-        val basePath = project.basePath ?: return null
-        val baseDir = LocalFileSystem.getInstance().findFileByPath(basePath) ?: return null
+    private fun findEnvTargets(project: com.intellij.openapi.project.Project, varName: String): List<PsiElement> {
+        val envFiles = EnvFileParser.findEnvFiles(project)
+        if (varName == EnvFileParser.PARAMETER) return envFiles
 
-        for (child in baseDir.children) {
-            if (child.name == ".env" || (child.name.startsWith(".env.") && !child.isDirectory)) {
-                val psiFile = PsiManager.getInstance(project).findFile(child) ?: continue
-                val lines = psiFile.text.lines()
-                var offset = 0
-                for (line in lines) {
-                    if (line.startsWith("$varName=")) {
-                        return psiFile.findElementAt(offset)
-                    }
-                    offset += line.length + 1
-                }
-            }
+        val name = varName.removePrefix(EnvFileParser.PREFIX)
+        return envFiles.flatMap { file ->
+            EnvFileParser.variablesOf(file).filter { it.name == name }.map { EnvVariableTarget(file, it) }
         }
-        return null
     }
 
     override fun getActionText(context: DataContext): String? = null

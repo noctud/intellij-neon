@@ -103,10 +103,8 @@ class NeonAnnotator : Annotator {
                                 knownVars = collectKnownVariables(element)
                             }
 
-                            if (!knownVars.contains(varName) && !varName.startsWith("env.")) {
-                                holder.newAnnotation(HighlightSeverity.WARNING, "Parameter '%$varName%' might not be defined")
-                                    .range(range)
-                                    .create()
+                            if (!knownVars.contains(varName)) {
+                                warnUndefinedVariable(element, varName, range, holder)
                             }
                         }
 
@@ -128,9 +126,33 @@ class NeonAnnotator : Annotator {
         } else {
             result.addAll(ParameterCompletionProvider.NETTE_DEFAULTS)
             result.addAll(element.project.collectAllParameters())
-            result.addAll(EnvFileParser.collectEnvVariables(element.project))
         }
         return result
+    }
+
+    /**
+     * %env.NAME% is checked against .env files, but only weakly: getenv() also returns
+     * variables set outside them (Docker, web server, shell).
+     */
+    private fun warnUndefinedVariable(element: PsiElement, varName: String, range: TextRange, holder: AnnotationHolder) {
+        if (!EnvFileParser.isEnvParameter(varName)) {
+            holder.newAnnotation(HighlightSeverity.WARNING, "Parameter '%$varName%' might not be defined")
+                .range(range)
+                .create()
+            return
+        }
+
+        // PHPStan reads %env.NAME% from the real environment, there is no .env file to check against
+        if (varName == EnvFileParser.PARAMETER || element.containingFile.isPhpStan()) return
+
+        // Without any .env file the variables come from elsewhere
+        val envVariables = EnvFileParser.collectEnvVariables(element.project)
+        val name = varName.removePrefix(EnvFileParser.PREFIX)
+        if (envVariables.isEmpty() || envVariables.contains(name)) return
+
+        holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "Environment variable '$name' is not defined in any .env file")
+            .range(range)
+            .create()
     }
 
     /**
