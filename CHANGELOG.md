@@ -6,9 +6,17 @@
 
 - Translation catalogues (`<domain>.<locale>.neon`, e.g. `messages.en_US.neon` or `messages+intl-icu.pt-BR.neon`) are recognized and treated as prose: `%placeholder%` is highlighted without the "might not be defined" warning, and config-only highlighting, warnings, completion and navigation (PHP classes, `@service`, file paths) are turned off there
 
+- `%env.NAME%` autocompletion from `.env` files, Ctrl+Click navigates to the variable in every `.env*` file declaring it, Ctrl+Click on `%env%` offers the `.env*` files
+- Weak warning for `%env.NAME%` not declared in any `.env*` file (only when the project has one)
+
 ### Changed
 
 - Renaming a PHP class no longer rewrites text in translation catalogues, and they are skipped when collecting parameters and services
+
+### Fixed
+
+- `.env` variables were completed and accepted as bare `%NAME%`, but Nette exposes them as `%env.NAME%`
+- `.env` lines with `export`, spaces around `=` or lowercase names were ignored
 
 ## [1.1.1] - 2026-10-21
 

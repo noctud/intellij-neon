@@ -49,7 +49,12 @@ class ParameterCompletionProvider : CompletionProvider<CompletionParameters>() {
         } else {
             variables.addAll(NETTE_DEFAULTS)
             variables.addAll(element.project.collectAllParameters())
-            envVariables.addAll(EnvFileParser.collectEnvVariables(element.project) - variables)
+            val envNames = EnvFileParser.collectEnvVariables(element.project)
+            if (envNames.isNotEmpty()) {
+                envVariables.add(EnvFileParser.PARAMETER)
+                envNames.mapTo(envVariables) { EnvFileParser.PREFIX + it }
+                envVariables.removeAll(variables)
+            }
         }
 
         for (variable in variables) {
