@@ -23,7 +23,7 @@ class NeonHighlightingLexer(baseLexer: Lexer, private val translation: Boolean =
 
             if (KEYWORDS.contains(text)) {
                 advanceLexer(baseLexer)
-                replaceCachedType(0, NeonTokenTypes.NEON_KEYWORD)
+                replaceCachedType(0, keywordType(text))
             } else if (isDateTime(text)) {
                 advanceLexer(baseLexer)
                 replaceCachedType(0, NeonTokenTypes.NEON_DATETIME)
@@ -80,11 +80,16 @@ class NeonHighlightingLexer(baseLexer: Lexer, private val translation: Boolean =
     }
 
     companion object {
-        private val KEYWORDS = setOf(
-            "true", "True", "TRUE", "yes", "Yes", "YES", "on", "On", "ON",
-            "false", "False", "FALSE", "no", "No", "NO", "off", "Off", "OFF",
-            "null", "Null", "NULL"
-        )
+        private val TRUE_KEYWORDS = setOf("true", "True", "TRUE", "yes", "Yes", "YES", "on", "On", "ON")
+        private val FALSE_KEYWORDS = setOf("false", "False", "FALSE", "no", "No", "NO", "off", "Off", "OFF")
+        private val KEYWORDS = TRUE_KEYWORDS + FALSE_KEYWORDS + setOf("null", "Null", "NULL")
+
+        // true and false can be given their own colors, they are hard to tell apart at a glance otherwise
+        private fun keywordType(text: String) = when (text) {
+            in TRUE_KEYWORDS -> NeonTokenTypes.NEON_TRUE
+            in FALSE_KEYWORDS -> NeonTokenTypes.NEON_FALSE
+            else -> NeonTokenTypes.NEON_KEYWORD
+        }
 
         // Matches the PHP Neon parser's number classification:
         // decimal integers, floats, scientific notation, hex, octal, binary

@@ -49,6 +49,8 @@ class NeonColorsPage : ColorSettingsPage {
                 "\t\tphp:\n" +
                 "\t\t\tdate.timezone: Europe/Prague\n" +
                 "\t\t\tzlib.output_compression: yes  # use gzip\n" +
+                "\t\t\tdisplay_errors: off\n" +
+                "\t\t\topcache.validate_timestamps: null\n" +
                 "\n" +
                 "\t\tchildren:\n" +
                 "\t\t\t- Bart\n" +
@@ -82,6 +84,8 @@ class NeonColorsPage : ColorSettingsPage {
             AttributesDescriptor("Number", NeonSyntaxHighlighter.NUMBER),
             AttributesDescriptor("Datetime", NeonSyntaxHighlighter.DATETIME),
             AttributesDescriptor("Keyword", NeonSyntaxHighlighter.KEYWORD),
+            AttributesDescriptor("Boolean true (true, yes, on)", NeonSyntaxHighlighter.TRUE),
+            AttributesDescriptor("Boolean false (false, no, off)", NeonSyntaxHighlighter.FALSE),
             AttributesDescriptor("String", NeonSyntaxHighlighter.STRING),
             AttributesDescriptor("Class reference", NeonSyntaxHighlighter.CLASSNAME),
             AttributesDescriptor("Variable", NeonSyntaxHighlighter.VARIABLE),

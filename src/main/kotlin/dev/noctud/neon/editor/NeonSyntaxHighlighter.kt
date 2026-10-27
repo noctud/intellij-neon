@@ -43,9 +43,18 @@ class NeonSyntaxHighlighter(private val translation: Boolean = false) : SyntaxHi
         val NUMBER: TextAttributesKey =
             TextAttributesKey.createTextAttributesKey(NUMBER_ID, DefaultLanguageHighlighterColors.NUMBER)
 
+        // true/false/null decode to PHP constants, and the constant color sets them apart from keys and numbers
         const val KEYWORD_ID: String = "NEON_KEYWORD"
         val KEYWORD: TextAttributesKey =
-            TextAttributesKey.createTextAttributesKey(KEYWORD_ID, DefaultLanguageHighlighterColors.NUMBER)
+            TextAttributesKey.createTextAttributesKey(KEYWORD_ID, DefaultLanguageHighlighterColors.CONSTANT)
+
+        const val TRUE_ID: String = "NEON_TRUE"
+        val TRUE: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(TRUE_ID, KEYWORD)
+
+        const val FALSE_ID: String = "NEON_FALSE"
+        val FALSE: TextAttributesKey =
+            TextAttributesKey.createTextAttributesKey(FALSE_ID, KEYWORD)
 
         const val DATETIME_ID: String = "NEON_DATETIME"
         val DATETIME: TextAttributesKey =
@@ -88,6 +97,8 @@ class NeonSyntaxHighlighter(private val translation: Boolean = false) : SyntaxHi
         val sNUMBERS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_NUMBER)
         val sDATETIMES: TokenSet = TokenSet.create(NeonTokenTypes.NEON_DATETIME)
         val sKEYWORDS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_KEYWORD)
+        val sTRUE: TokenSet = TokenSet.create(NeonTokenTypes.NEON_TRUE)
+        val sFALSE: TokenSet = TokenSet.create(NeonTokenTypes.NEON_FALSE)
         val sSTRINGS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_STRING, _NeonTypes.T_STRING)
         val sCLASSNAMES: TokenSet = TokenSet.create(NeonTokenTypes.NEON_CLASSNAME, NeonTokenTypes.NEON_FILEPATH)
         val sSERVICE_REFS: TokenSet = TokenSet.create(NeonTokenTypes.NEON_SERVICE_REF)
@@ -108,6 +119,8 @@ class NeonSyntaxHighlighter(private val translation: Boolean = false) : SyntaxHi
             fillMap(ATTRIBUTES, sNUMBERS, NUMBER)
             fillMap(ATTRIBUTES, sDATETIMES, DATETIME)
             fillMap(ATTRIBUTES, sKEYWORDS, KEYWORD)
+            fillMap(ATTRIBUTES, sTRUE, TRUE)
+            fillMap(ATTRIBUTES, sFALSE, FALSE)
             fillMap(ATTRIBUTES, sSTRINGS, STRING)
             fillMap(ATTRIBUTES, sCLASSNAMES, CLASSNAME)
             fillMap(ATTRIBUTES, sSERVICE_REFS, PHPSTAN_IDENTIFIER) // same metadata color
