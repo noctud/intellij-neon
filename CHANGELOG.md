@@ -7,10 +7,12 @@
 - Translation catalogues (`<domain>.<locale>.neon`, e.g. `messages.en_US.neon` or `messages+intl-icu.pt-BR.neon`) are recognized and treated as prose: `%placeholder%` is highlighted without the "might not be defined" warning, and config-only highlighting, warnings, completion and navigation (PHP classes, `@service`, file paths) are turned off there
 - `%env.NAME%` autocompletion from `.env` files, Ctrl+Click navigates to the variable in every `.env*` file declaring it, Ctrl+Click on `%env%` offers the `.env*` files
 - Weak warning for `%env.NAME%` not declared in any `.env*` file (only when the project has one)
+- `true` / `yes` / `on` and `false` / `no` / `off` have their own entries in the color settings, so they can be told apart (both default to the Keyword color)
 
 ### Changed
 
 - Renaming a PHP class no longer rewrites text in translation catalogues, and they are skipped when collecting parameters and services
+- `true`, `false` and `null` default to the Constant color (like PHP constants) instead of the Number color, so they no longer look like numbers
 
 ### Fixed
 

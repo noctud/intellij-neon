@@ -11,6 +11,8 @@ import com.intellij.psi.tree.IElementType
  */
 object NeonTokenTypes {
     @JvmField val NEON_KEYWORD: IElementType = NeonTokenType("keyword")
+    @JvmField val NEON_TRUE: IElementType = NeonTokenType("true")
+    @JvmField val NEON_FALSE: IElementType = NeonTokenType("false")
     @JvmField val NEON_KEY: IElementType = NeonTokenType("key")
     @JvmField val NEON_NUMBER: IElementType = NeonTokenType("number")
     @JvmField val NEON_VARIABLE: IElementType = NeonTokenType("variable")

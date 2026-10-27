@@ -49,9 +49,9 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
     fun testKeywords() {
         val l = createLexer("[true,off,TruE,\"true\"]")
         assertToken(l, _NeonTypes.T_LBRACE_SQUARE, "[")
-        assertToken(l, NeonTokenTypes.NEON_KEYWORD, "true")
+        assertToken(l, NeonTokenTypes.NEON_TRUE, "true")
         assertToken(l, _NeonTypes.T_ITEM_DELIMITER, ",")
-        assertToken(l, NeonTokenTypes.NEON_KEYWORD, "off")
+        assertToken(l, NeonTokenTypes.NEON_FALSE, "off")
         assertToken(l, _NeonTypes.T_ITEM_DELIMITER, ",")
         assertToken(l, NeonTokenTypes.NEON_STRING, "TruE") // not a keyword — wrong case
         assertToken(l, _NeonTypes.T_ITEM_DELIMITER, ",")
@@ -62,13 +62,16 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
 
     @Test
     fun testAllKeywordVariants() {
-        for (kw in listOf("true", "True", "TRUE", "false", "False", "FALSE",
-            "yes", "Yes", "YES", "no", "No", "NO",
-            "on", "On", "ON", "off", "Off", "OFF",
-            "null", "Null", "NULL")) {
-            val l = createLexer("[$kw]")
-            l.advance() // skip [
-            assertEquals("$kw should be NEON_KEYWORD", NeonTokenTypes.NEON_KEYWORD, l.tokenType)
+        for ((keywords, type) in listOf(
+            listOf("true", "True", "TRUE", "yes", "Yes", "YES", "on", "On", "ON") to NeonTokenTypes.NEON_TRUE,
+            listOf("false", "False", "FALSE", "no", "No", "NO", "off", "Off", "OFF") to NeonTokenTypes.NEON_FALSE,
+            listOf("null", "Null", "NULL") to NeonTokenTypes.NEON_KEYWORD,
+        )) {
+            for (kw in keywords) {
+                val l = createLexer("[$kw]")
+                l.advance() // skip [
+                assertEquals("$kw should be $type", type, l.tokenType)
+            }
         }
     }
 
@@ -211,7 +214,7 @@ class NeonHighlightingLexerTest : UsefulTestCase() {
         l.start("key: no")
         assertToken(l, NeonTokenTypes.NEON_KEY, "key")
         skipTo(l, "no")
-        assertToken(l, NeonTokenTypes.NEON_KEYWORD, "no")
+        assertToken(l, NeonTokenTypes.NEON_FALSE, "no")
     }
 
     // === isNumeric unit tests ===
