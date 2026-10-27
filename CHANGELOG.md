@@ -1,11 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## [1.2.0] - 2026-10-27
 
 ### Added
 
 - Translation catalogues (`<domain>.<locale>.neon`, e.g. `messages.en_US.neon` or `messages+intl-icu.pt-BR.neon`) are recognized and treated as prose: `%placeholder%` is highlighted without the "might not be defined" warning, and config-only highlighting, warnings, completion and navigation (PHP classes, `@service`, file paths) are turned off there
-
 - `%env.NAME%` autocompletion from `.env` files, Ctrl+Click navigates to the variable in every `.env*` file declaring it, Ctrl+Click on `%env%` offers the `.env*` files
 - Weak warning for `%env.NAME%` not declared in any `.env*` file (only when the project has one)
 
